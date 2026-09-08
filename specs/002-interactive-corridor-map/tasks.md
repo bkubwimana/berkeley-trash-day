@@ -65,7 +65,7 @@ targets.
 ## Phase 6: Release
 
 - [x] T014 Run the full automated, local Netlify, content, responsive, and security regression gates
-- [ ] T015 Commit and push the Spec Kit feature, deploy production, and smoke-test `https://berkeleytrashday.netlify.app`
+- [x] T015 Commit and push the Spec Kit feature, deploy production, and smoke-test `https://berkeleytrashday.netlify.app`
 
 ## Dependencies and Strategy
 
