@@ -11,6 +11,16 @@ export const STREAMS = [
   { id: "compost", label: "Compost" }
 ];
 
+export const WEEKDAYS = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday"
+];
+
 export function buildCorridorView(schedule, selectedBlock, loadFailed = false) {
   return CORRIDOR.map((segment) => {
     const blockSchedule = schedule?.blocks?.[segment.block];
@@ -63,6 +73,28 @@ export function formatSummary(summary, loadFailed = false) {
     day: summary.day,
     detail: `${summary.winningReports} of ${summary.total} recent reports agree · ${summary.status}`,
     tone: summary.status === "Community consensus" ? "consensus" : "developing"
+  };
+}
+
+export function buildWeeklyCalendar(blockSchedule, loadFailed = false) {
+  const streamsByDay = new Map(WEEKDAYS.map((day) => [day, []]));
+
+  if (!loadFailed) {
+    for (const { id, label } of STREAMS) {
+      const summary = blockSchedule?.[id];
+      if (!summary?.day || !summary.total || !streamsByDay.has(summary.day)) continue;
+      streamsByDay.get(summary.day).push({
+        id,
+        label,
+        status: summary.status,
+        total: summary.total
+      });
+    }
+  }
+
+  return {
+    unavailable: loadFailed,
+    days: WEEKDAYS.map((day) => ({ day, streams: streamsByDay.get(day) }))
   };
 }
 

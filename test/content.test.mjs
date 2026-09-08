@@ -47,6 +47,7 @@ test("corridor uses real cross streets in order with map-data attribution", asyn
   }
 
   assert.match(html, /© OpenStreetMap contributors/);
+  assert.ok(html.indexOf("© OpenStreetMap contributors") > html.indexOf("<footer>"));
   assert.match(model, /id: "trash"/);
   assert.match(model, /id: "recycling"/);
   assert.match(model, /id: "compost"/);
@@ -63,7 +64,8 @@ test("corridor makes no verification or confidence claim", async () => {
   const corridor = html.slice(start, end);
 
   assert.doesNotMatch(corridor, /verified|confidence|\d+%/i);
-  assert.match(corridor, /Schematic street labels/);
+  assert.doesNotMatch(corridor, /OpenStreetMap|Schematic street labels/);
+  assert.match(corridor, /className="sr-only"> block/);
 });
 
 test("React UI uses recognizable inline collection symbols", async () => {
@@ -73,6 +75,7 @@ test("React UI uses recognizable inline collection symbols", async () => {
   assert.match(app, /CollectionIcon/);
   assert.match(icons, /type === "trash"/);
   assert.match(icons, /type === "recycling"/);
+  assert.match(icons, /♻/);
   assert.match(icons, /collection-icon/);
 });
 
@@ -83,4 +86,18 @@ test("corridor CSS layers a street over parcel-like blocks on a map grid", async
   assert.match(css, /\.street-line[\s\S]*z-index: 4/);
   assert.match(css, /\.intersection-marker[\s\S]*z-index: 5/);
   assert.match(css, /\.activity-signal[\s\S]*background: currentColor/);
+});
+
+test("light theme, generated logo, and weekly calendar are present", async () => {
+  const app = await readFile(new URL("src/App.jsx", root), "utf8");
+  const css = await readFile(new URL("src/styles.css", root), "utf8");
+  const logo = await readFile(new URL("public/berkeley-trash-day-logo.png", root));
+
+  assert.match(css, /color-scheme: light/);
+  assert.match(app, /berkeley-trash-day-logo\.png/);
+  assert.doesNotMatch(app, />BT</);
+  assert.ok(logo.byteLength > 0);
+  assert.match(app, /function WeeklyCalendar/);
+  assert.match(app, /Community week/);
+  assert.match(app, /Holiday changes may not appear/);
 });

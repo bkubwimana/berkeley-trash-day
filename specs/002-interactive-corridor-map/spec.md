@@ -126,6 +126,10 @@ then inspect all detail cards and submit a report without horizontal page scroll
 - **FR-016**: The frontend MUST use reusable React components and keep corridor view
   derivation separate from rendering so broader geographic views can be introduced
   without changing the reporting API.
+- **FR-017**: The interface MUST use a light, civic-oriented default palette with
+  accessible contrast and retain green, blue, and neutral stream distinctions.
+- **FR-018**: Recycling MUST use the familiar three-arrow recycling loop shown in the
+  design reference rather than an abstract custom arrow arrangement.
 
 ### Key Entities
 

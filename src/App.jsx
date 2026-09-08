@@ -1,8 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CollectionIcon } from "./CollectionIcon.jsx";
-import { CORRIDOR, STREAMS, buildCorridorView, formatSummary, makeReportPayload } from "./corridor.mjs";
-
-const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+import {
+  CORRIDOR,
+  STREAMS,
+  WEEKDAYS,
+  buildCorridorView,
+  buildWeeklyCalendar,
+  formatSummary,
+  makeReportPayload
+} from "./corridor.mjs";
 const CROSS_STREETS = ["Addison Street", "Allston Way", "Bancroft Way", "Channing Way", "Dwight Way"];
 
 function Corridor({ schedule, selectedBlock, loadFailed, onSelect }) {
@@ -48,7 +54,10 @@ function Corridor({ schedule, selectedBlock, loadFailed, onSelect }) {
                   : `${segment.totalReports} ${segment.totalReports === 1 ? "report" : "reports"}`}
               </span>
             </span>
-            <span className="segment-block"><strong className="block-number">{segment.block}</strong> block</span>
+            <span className="segment-block">
+              <strong className="block-number">{segment.block}</strong>
+              <span className="sr-only"> block</span>
+            </span>
             <span className="segment-bounds">{segment.startStreet} → {segment.endStreet}</span>
             <span className="sr-only" data-activity-text>
               {segment.startStreet} to {segment.endStreet}. {segment.activityText}.
@@ -56,10 +65,6 @@ function Corridor({ schedule, selectedBlock, loadFailed, onSelect }) {
           </button>
         ))}
       </div>
-      <p className="map-attribution">
-        Schematic street labels ·{" "}
-        <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>
-      </p>
     </div>
   );
 }
@@ -72,8 +77,8 @@ function BlockSummary({ segment, loadFailed }) {
   return (
     <div className="block-summary" aria-live="polite">
       <div>
-        <span>Active block</span>
-        <strong><span id="selected-block">{segment?.block ?? "2100"}</span> block</strong>
+        <span>Selected range</span>
+        <strong><span id="selected-block">{segment?.block ?? "2100"}</span> · 9th Street</strong>
       </div>
       <div>
         <span>Recent reports</span>
@@ -86,6 +91,51 @@ function BlockSummary({ segment, loadFailed }) {
         </strong>
       </div>
     </div>
+  );
+}
+
+function WeeklyCalendar({ block, blockSchedule, loadFailed }) {
+  const calendar = buildWeeklyCalendar(blockSchedule, loadFailed);
+
+  return (
+    <section className="calendar-section" aria-labelledby="calendar-title">
+      <div className="calendar-heading">
+        <div>
+          <p className="kicker">Community week</p>
+          <h3 id="calendar-title">Pickup calendar · {block}</h3>
+        </div>
+        <p>Typical week from recent reports. Holiday changes may not appear.</p>
+      </div>
+      <div className="calendar-grid">
+        {calendar.days.map(({ day, streams }) => (
+          <article className={`calendar-day${streams.length ? " has-pickup" : ""}`} key={day}>
+            <span className="calendar-day-name">{day.slice(0, 3)}</span>
+            <div className="calendar-events">
+              {streams.map((stream) => (
+                <span
+                  className={[
+                    "calendar-event",
+                    `calendar-${stream.id}`,
+                    stream.status === "Community consensus" ? "is-consensus" : "is-developing"
+                  ].join(" ")}
+                  title={`${stream.label}: ${stream.status}, ${stream.total} recent reports`}
+                  key={stream.id}
+                >
+                  <CollectionIcon type={stream.id} />
+                  <span>{stream.label}</span>
+                  <span className="sr-only"> · {stream.status}, {stream.total} recent reports</span>
+                </span>
+              ))}
+              {!streams.length && (
+                <span className="calendar-empty">
+                  {calendar.unavailable ? "Unavailable" : "—"}
+                </span>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -206,7 +256,7 @@ export default function App() {
     <>
       <header className="site-header">
         <a className="brand" href="/" aria-label="Berkeley Trash Day home">
-          <span className="brand-mark" aria-hidden="true">BT</span>
+          <img className="brand-mark" src="/berkeley-trash-day-logo.png" alt="" />
           <span>Berkeley Trash Day</span>
         </a>
         <nav aria-label="Main navigation">
@@ -247,8 +297,9 @@ export default function App() {
           </div>
           <Corridor schedule={schedule} selectedBlock={block} loadFailed={loadFailed} onSelect={setBlock} />
           <BlockSummary segment={selectedSegment} loadFailed={loadFailed} />
+          <WeeklyCalendar block={block} blockSchedule={schedule?.blocks?.[block]} loadFailed={loadFailed} />
           <div className="schedule-heading">
-            <strong>Reported pickup days</strong>
+            <strong>Pickup details</strong>
             <span className="status-key"><i className="signal signal-consensus" />Consensus <i className="signal signal-developing" />Developing</span>
           </div>
           <div id="schedule" className="schedule-grid" aria-live="polite" aria-busy={loading}>
@@ -282,7 +333,13 @@ export default function App() {
       </main>
 
       <footer>
-        <div><strong>Berkeley Trash Day</strong><p>An open-source community project. Not affiliated with the City of Berkeley.</p></div>
+        <div>
+          <strong>Berkeley Trash Day</strong>
+          <p>An open-source community project. Not affiliated with the City of Berkeley.</p>
+          <p className="map-source">
+            Street reference: <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>
+          </p>
+        </div>
         <div className="footer-links">
           <a href="/privacy.html">Privacy</a>
           <a href="https://github.com/bkubwimana/berkeley-trash-day">Source code</a>
@@ -292,4 +349,3 @@ export default function App() {
     </>
   );
 }
-

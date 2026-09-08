@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   CORRIDOR,
   buildCorridorView,
+  buildWeeklyCalendar,
   formatSummary,
   makeReportPayload
 } from "../src/corridor.mjs";
@@ -96,4 +97,34 @@ test("builds only the constrained report payload", () => {
     day: "Thursday",
     website: ""
   });
+});
+
+test("builds a seven-day calendar from reported stream summaries", () => {
+  const calendar = buildWeeklyCalendar({
+    trash: { day: "Tuesday", total: 3, status: "Community consensus" },
+    recycling: { day: "Tuesday", total: 1, status: "Developing" },
+    compost: { day: "Thursday", total: 2, status: "Developing" }
+  });
+
+  assert.equal(calendar.days.length, 7);
+  assert.deepEqual(calendar.days.find(({ day }) => day === "Tuesday").streams, [
+    { id: "trash", label: "Trash", status: "Community consensus", total: 3 },
+    { id: "recycling", label: "Recycling", status: "Developing", total: 1 }
+  ]);
+  assert.deepEqual(calendar.days.find(({ day }) => day === "Thursday").streams, [
+    { id: "compost", label: "Compost", status: "Developing", total: 2 }
+  ]);
+  assert.equal(calendar.unavailable, false);
+});
+
+test("calendar ignores empty summaries and distinguishes unavailable data", () => {
+  const empty = buildWeeklyCalendar({
+    trash: { day: null, total: 0, status: "No reports" }
+  });
+  assert.equal(empty.days.every(({ streams }) => streams.length === 0), true);
+  assert.equal(empty.unavailable, false);
+
+  const unavailable = buildWeeklyCalendar(null, true);
+  assert.equal(unavailable.unavailable, true);
+  assert.equal(unavailable.days.every(({ streams }) => streams.length === 0), true);
 });

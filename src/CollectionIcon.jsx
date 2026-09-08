@@ -21,12 +21,9 @@ export function CollectionIcon({ type, className = "" }) {
 
   if (type === "recycling") {
     return (
-      <svg {...common}>
-        <path d="m9.2 5.2 2-3.2 2 3.2M11.2 2l3.1 5.4" />
-        <path d="m18 10 3.8.2-1.7 3.4M21.8 10.2l-3.1 5.4" />
-        <path d="m14.4 19.5-1.9 3.3-2-3.2M12.5 22.8H6.2" />
-        <path d="M6.2 22.8 3.1 17.4l2-3.5M5.1 13.9l-3.8-.1 1.8-3.4" />
-      </svg>
+      <span className={`collection-icon collection-icon-symbol ${className}`.trim()} aria-hidden="true">
+        ♻
+      </span>
     );
   }
 

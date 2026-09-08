@@ -64,6 +64,9 @@ labels—not a live tile map. The component boundary leaves room for a future Ma
 and GeoJSON view when coverage expands. No analytics SDK, account system, geolocation,
 or client-side tracking is included.
 
+The selected range also has a seven-day community calendar. It places collection streams
+only on weekdays supported by recent reports and keeps holiday limitations visible.
+
 ## API
 
 `GET /api/schedule` returns recent block-level aggregates and the consensus method.
