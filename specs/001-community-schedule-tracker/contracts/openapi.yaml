@@ -1,0 +1,181 @@
+openapi: 3.1.0
+info:
+  title: Berkeley Trash Day Community API
+  version: 0.1.0
+  description: >-
+    Unofficial, community-reported collection-day data for the initial 9th Street beta.
+servers:
+  - url: https://berkeleytrashday.netlify.app
+paths:
+  /api/schedule:
+    get:
+      summary: Read recent community schedule aggregates
+      operationId: getSchedule
+      responses:
+        "200":
+          description: Aggregates for all supported blocks and collection streams
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduleResponse"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/reports:
+    post:
+      summary: Submit one constrained community observation
+      operationId: submitReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportInput"
+      responses:
+        "201":
+          description: The community observation was stored
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [ok]
+                properties:
+                  ok:
+                    type: boolean
+                    const: true
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "413":
+          description: Request body exceeds 2,000 bytes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Submission frequency limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          $ref: "#/components/responses/ServerError"
+components:
+  schemas:
+    Block:
+      type: string
+      enum: ["2100", "2200", "2300", "2400"]
+    Stream:
+      type: string
+      enum: [trash, recycling, compost]
+    Weekday:
+      type: string
+      enum: [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]
+    ReportInput:
+      type: object
+      additionalProperties: false
+      required: [block, stream, day]
+      properties:
+        block:
+          $ref: "#/components/schemas/Block"
+        stream:
+          $ref: "#/components/schemas/Stream"
+        day:
+          $ref: "#/components/schemas/Weekday"
+        website:
+          type: string
+          maxLength: 0
+          description: Hidden automated-submission trap; valid clients omit or leave empty.
+    CollectionSummary:
+      type: object
+      additionalProperties: false
+      required: [day, winningReports, total, agreementPercent, status]
+      properties:
+        day:
+          oneOf:
+            - $ref: "#/components/schemas/Weekday"
+            - type: "null"
+        winningReports:
+          type: integer
+          minimum: 0
+        total:
+          type: integer
+          minimum: 0
+        agreementPercent:
+          type: integer
+          minimum: 0
+          maximum: 100
+        status:
+          type: string
+          enum: [No reports, Developing, Community consensus]
+    BlockSchedule:
+      type: object
+      additionalProperties: false
+      required: [trash, recycling, compost]
+      properties:
+        trash:
+          $ref: "#/components/schemas/CollectionSummary"
+        recycling:
+          $ref: "#/components/schemas/CollectionSummary"
+        compost:
+          $ref: "#/components/schemas/CollectionSummary"
+    ScheduleResponse:
+      type: object
+      additionalProperties: false
+      required: [generatedAt, blocks, methodology]
+      properties:
+        generatedAt:
+          type: string
+          format: date-time
+        blocks:
+          type: object
+          additionalProperties: false
+          required: ["2100", "2200", "2300", "2400"]
+          properties:
+            "2100": { $ref: "#/components/schemas/BlockSchedule" }
+            "2200": { $ref: "#/components/schemas/BlockSchedule" }
+            "2300": { $ref: "#/components/schemas/BlockSchedule" }
+            "2400": { $ref: "#/components/schemas/BlockSchedule" }
+        methodology:
+          type: object
+          additionalProperties: false
+          required: [windowDays, minimumReports, agreementThreshold]
+          properties:
+            windowDays:
+              type: integer
+              const: 180
+            minimumReports:
+              type: integer
+              const: 3
+            agreementThreshold:
+              type: number
+              const: 0.6666666666666666
+    Error:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          type: string
+  responses:
+    InvalidRequest:
+      description: Malformed or unsupported report
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    MethodNotAllowed:
+      description: HTTP method is not supported by this endpoint
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    ServerError:
+      description: Community data cannot currently be read or stored
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"

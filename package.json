@@ -1,0 +1,18 @@
+{
+  "name": "berkeley-trash-day",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A privacy-preserving, community-reported trash collection day tracker for Berkeley, California.",
+  "scripts": {
+    "dev": "npx --yes netlify-cli@23.15.1 dev",
+    "test": "node --test",
+    "check": "node --check public/app.js && node --check src/reporting.mjs && node --check netlify/functions/schedule.mjs && node --check netlify/functions/submit-report.mjs"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^10.0.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

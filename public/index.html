@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="A privacy-first, community-reported trash, recycling, and compost schedule for Berkeley blocks."
+    />
+    <title>Berkeley Trash Day</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Berkeley Trash Day home">
+        <span class="brand-mark" aria-hidden="true">BT</span>
+        <span>Berkeley Trash Day</span>
+      </a>
+      <nav aria-label="Main navigation">
+        <a href="#report">Report a day</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="https://github.com/bkubwimana/berkeley-trash-day">GitHub</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <div class="eyebrow-row">
+            <span class="pill">Community beta</span>
+            <span class="pill pill-muted">Unofficial</span>
+          </div>
+          <h1 id="page-title">Find your block.<br />Know your day.</h1>
+          <p class="lede">
+            A neighbor-powered guide to trash, recycling, and compost pickup days,
+            starting with four blocks of 9th Street.
+          </p>
+        </div>
+        <aside class="official-note">
+          <span class="note-icon" aria-hidden="true">i</span>
+          <div>
+            <strong>Need an official answer?</strong>
+            <p>
+              Contact Berkeley Zero Waste at
+              <a href="tel:+15109817270">(510) 981-7270</a> or visit the
+              <a href="https://berkeleyca.gov/city-services/trash-recycling/residential-waste-services"
+                >City of Berkeley website</a
+              >.
+            </p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="tracker" aria-labelledby="tracker-title">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">9th Street · Berkeley, California</p>
+            <h2 id="tracker-title">Choose your block</h2>
+          </div>
+          <span id="last-updated" class="updated">Community data</span>
+        </div>
+
+        <div class="block-strip" role="group" aria-label="9th Street block">
+          <span class="street-line" aria-hidden="true"></span>
+          <button class="block-button is-active" type="button" data-block="2100">
+            <span class="block-number">2100</span>
+            <span>block</span>
+          </button>
+          <button class="block-button" type="button" data-block="2200">
+            <span class="block-number">2200</span>
+            <span>block</span>
+          </button>
+          <button class="block-button" type="button" data-block="2300">
+            <span class="block-number">2300</span>
+            <span>block</span>
+          </button>
+          <button class="block-button" type="button" data-block="2400">
+            <span class="block-number">2400</span>
+            <span>block</span>
+          </button>
+        </div>
+
+        <div class="selection-heading">
+          <div>
+            <span class="label">Selected location</span>
+            <strong><span id="selected-block">2100</span> block of 9th Street</strong>
+          </div>
+          <div class="confidence-key">
+            <span class="signal signal-consensus"></span> Consensus
+            <span class="signal signal-developing"></span> Developing
+          </div>
+        </div>
+
+        <div id="schedule" class="schedule-grid" aria-live="polite" aria-busy="true">
+          <article class="schedule-card" data-stream-card="trash">
+            <span class="stream-icon stream-trash" aria-hidden="true">T</span>
+            <div>
+              <h3>Trash</h3>
+              <strong class="schedule-day">Loading…</strong>
+              <p class="schedule-detail">Checking community reports</p>
+            </div>
+          </article>
+          <article class="schedule-card" data-stream-card="recycling">
+            <span class="stream-icon stream-recycling" aria-hidden="true">R</span>
+            <div>
+              <h3>Recycling</h3>
+              <strong class="schedule-day">Loading…</strong>
+              <p class="schedule-detail">Checking community reports</p>
+            </div>
+          </article>
+          <article class="schedule-card" data-stream-card="compost">
+            <span class="stream-icon stream-compost" aria-hidden="true">C</span>
+            <div>
+              <h3>Compost</h3>
+              <strong class="schedule-day">Loading…</strong>
+              <p class="schedule-detail">Checking community reports</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="report" class="report-section" aria-labelledby="report-title">
+        <div class="report-copy">
+          <p class="kicker">Help a neighbor</p>
+          <h2 id="report-title">What day are carts collected?</h2>
+          <p>
+            Share what you have observed for this block. Three agreeing reports are
+            needed before a day is shown as community consensus.
+          </p>
+          <ul class="privacy-points">
+            <li>No account required</li>
+            <li>No exact address requested</li>
+            <li>Reports expire after 180 days</li>
+          </ul>
+        </div>
+
+        <form id="report-form" class="report-form">
+          <div class="form-row">
+            <label for="report-block">Block</label>
+            <select id="report-block" name="block" required>
+              <option value="2100">2100 block</option>
+              <option value="2200">2200 block</option>
+              <option value="2300">2300 block</option>
+              <option value="2400">2400 block</option>
+            </select>
+          </div>
+
+          <fieldset>
+            <legend>Collection type</legend>
+            <div class="segmented-control">
+              <label>
+                <input type="radio" name="stream" value="trash" checked />
+                <span>Trash</span>
+              </label>
+              <label>
+                <input type="radio" name="stream" value="recycling" />
+                <span>Recycling</span>
+              </label>
+              <label>
+                <input type="radio" name="stream" value="compost" />
+                <span>Compost</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="form-row">
+            <label for="report-day">Observed pickup day</label>
+            <select id="report-day" name="day" required>
+              <option value="">Choose a day</option>
+              <option>Monday</option>
+              <option>Tuesday</option>
+              <option>Wednesday</option>
+              <option>Thursday</option>
+              <option>Friday</option>
+              <option>Saturday</option>
+              <option>Sunday</option>
+            </select>
+          </div>
+
+          <div class="honeypot" aria-hidden="true">
+            <label for="website">Website</label>
+            <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <label class="confirmation">
+            <input name="confirmed" type="checkbox" required />
+            <span>I observed or confirmed this schedule for the selected block.</span>
+          </label>
+
+          <button id="submit-button" class="primary-button" type="submit">
+            Submit community report
+          </button>
+          <p id="form-status" class="form-status" role="status"></p>
+        </form>
+      </section>
+
+      <section class="method-section" aria-labelledby="method-title">
+        <p class="kicker">How confidence works</p>
+        <h2 id="method-title">Counts, not mystery scores.</h2>
+        <div class="method-grid">
+          <article>
+            <span>01</span>
+            <h3>Neighbors report</h3>
+            <p>People submit only a block, collection type, and observed day.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Reports agree</h3>
+            <p>We show the leading day and exactly how many recent reports support it.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Consensus appears</h3>
+            <p>At least three reports and two-thirds agreement are required.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div>
+        <strong>Berkeley Trash Day</strong>
+        <p>An open-source community project. Not affiliated with the City of Berkeley.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/privacy.html">Privacy</a>
+        <a href="https://github.com/bkubwimana/berkeley-trash-day">Source code</a>
+        <a href="https://berkeleyca.gov/city-services/trash-recycling/residential-waste-services"
+          >Official service information</a
+        >
+      </div>
+    </footer>
+  </body>
+</html>
