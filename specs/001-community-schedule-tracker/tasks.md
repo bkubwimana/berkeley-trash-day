@@ -13,10 +13,10 @@ validated as an independent increment.
 
 **Purpose**: Establish the dependency-light project and local hosting runtime.
 
-- [ ] T001 Create Node.js project metadata and validation commands in `package.json`
-- [ ] T002 [P] Configure static publishing, functions, redirects, security headers, and cache rules in `netlify.toml`
-- [ ] T003 [P] Add repository and local-runtime exclusions to `.gitignore`
-- [ ] T004 [P] Create the semantic tracker document skeleton in `public/index.html`
+- [x] T001 Create Node.js project metadata and validation commands in `package.json`
+- [x] T002 [P] Configure static publishing, functions, redirects, security headers, and cache rules in `netlify.toml`
+- [x] T003 [P] Add repository and local-runtime exclusions to `.gitignore`
+- [x] T004 [P] Create the semantic tracker document skeleton in `public/index.html`
 
 ---
 
@@ -26,9 +26,9 @@ validated as an independent increment.
 
 **Critical**: User-story work begins only after this phase passes.
 
-- [ ] T005 Write failing enumeration, validation, retention, tie, and consensus tests in `test/reporting.test.mjs`
-- [ ] T006 Implement fixed block, stream, weekday, validation, retention, and aggregation rules in `src/reporting.mjs`
-- [ ] T007 Run `npm test` and confirm all foundational decision-rule tests pass
+- [x] T005 Write failing enumeration, validation, retention, tie, and consensus tests in `test/reporting.test.mjs`
+- [x] T006 Implement fixed block, stream, weekday, validation, retention, and aggregation rules in `src/reporting.mjs`
+- [x] T007 Run `npm test` and confirm all foundational decision-rule tests pass
 
 **Checkpoint**: Domain rules are deterministic, tested, and independent of hosting.
 
@@ -45,14 +45,14 @@ day and count with the endpoint response.
 
 ### Tests for User Story 1
 
-- [ ] T008 [P] [US1] Add read-endpoint contract tests with injected report storage in `test/functions.test.mjs`
-- [ ] T009 [P] [US1] Add browser rendering tests for empty, developing, and consensus states in `test/browser.test.mjs`
+- [x] T008 [P] [US1] Add read-endpoint contract tests with injected report storage in `test/functions.test.mjs`
+- [x] T009 [P] [US1] Add browser rendering tests for empty, developing, and consensus states in `test/browser.test.mjs`
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement recent-report loading and schedule response contract in `netlify/functions/schedule.mjs`
-- [ ] T011 [US1] Implement block selection, schedule loading, and evidence rendering in `public/app.js`
-- [ ] T012 [US1] Build the responsive block and collection-result interface in `public/index.html` and `public/styles.css`
+- [x] T010 [US1] Implement recent-report loading and schedule response contract in `netlify/functions/schedule.mjs`
+- [x] T011 [US1] Implement block selection, schedule loading, and evidence rendering in `public/app.js`
+- [x] T012 [US1] Build the responsive block and collection-result interface in `public/index.html` and `public/styles.css`
 
 **Checkpoint**: The lookup works without requiring report submission and never fabricates a day.
 
@@ -69,14 +69,14 @@ record is created.
 
 ### Tests for User Story 2
 
-- [ ] T013 [P] [US2] Add write-endpoint success, validation, size, and method contract tests in `test/functions.test.mjs`
-- [ ] T014 [P] [US2] Add report form synchronization, success, and error tests in `test/browser.test.mjs`
+- [x] T013 [P] [US2] Add write-endpoint success, validation, size, and method contract tests in `test/functions.test.mjs`
+- [x] T014 [P] [US2] Add report form synchronization, success, and error tests in `test/browser.test.mjs`
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Implement report validation, immutable storage, body limit, and rate-limit configuration in `netlify/functions/submit-report.mjs`
-- [ ] T016 [US2] Implement constrained report controls, observation confirmation, and honeypot in `public/index.html`
-- [ ] T017 [US2] Implement submission, safe feedback, form reset, and aggregate refresh in `public/app.js`
+- [x] T015 [US2] Implement report validation, immutable storage, body limit, and rate-limit configuration in `netlify/functions/submit-report.mjs`
+- [x] T016 [US2] Implement constrained report controls, observation confirmation, and honeypot in `public/index.html`
+- [x] T017 [US2] Implement submission, safe feedback, form reset, and aggregate refresh in `public/app.js`
 
 **Checkpoint**: Reporting adds only the fields in the data model and lookup remains usable.
 
@@ -92,12 +92,12 @@ link and phone number from both tracker and privacy pages without assistance.
 
 ### Tests for User Story 3
 
-- [ ] T018 [P] [US3] Add static-content assertions for provenance, method, City contact, and prohibited form fields in `test/content.test.mjs`
+- [x] T018 [P] [US3] Add static-content assertions for provenance, method, City contact, and prohibited form fields in `test/content.test.mjs`
 
 ### Implementation for User Story 3
 
-- [ ] T019 [US3] Add unofficial labeling, transparent confidence method, and official City path to `public/index.html`
-- [ ] T020 [US3] Add plain-language data collection, hosting, retention, and affiliation disclosures to `public/privacy.html`
+- [x] T019 [US3] Add unofficial labeling, transparent confidence method, and official City path to `public/index.html`
+- [x] T020 [US3] Add plain-language data collection, hosting, retention, and affiliation disclosures to `public/privacy.html`
 
 **Checkpoint**: Community information cannot reasonably be mistaken for City verification.
 
@@ -112,11 +112,11 @@ architecture, local commands, privacy rule, consensus rule, and security-reporti
 
 ### Implementation for User Story 4
 
-- [ ] T021 [P] [US4] Document purpose, architecture, data rules, local commands, and official information in `README.md`
-- [ ] T022 [P] [US4] Document privacy-preserving contribution rules and workflow in `CONTRIBUTING.md`
-- [ ] T023 [P] [US4] Add the MIT grant and copyright notice to `LICENSE`
-- [ ] T024 [P] [US4] Document private vulnerability reporting and secret handling in `SECURITY.md`
-- [ ] T025 [US4] Review Spec Kit artifacts for requirement-to-task traceability in `specs/001-community-schedule-tracker/`
+- [x] T021 [P] [US4] Document purpose, architecture, data rules, local commands, and official information in `README.md`
+- [x] T022 [P] [US4] Document privacy-preserving contribution rules and workflow in `CONTRIBUTING.md`
+- [x] T023 [P] [US4] Add the MIT grant and copyright notice to `LICENSE`
+- [x] T024 [P] [US4] Document private vulnerability reporting and secret handling in `SECURITY.md`
+- [x] T025 [US4] Review Spec Kit artifacts for requirement-to-task traceability in `specs/001-community-schedule-tracker/`
 
 **Checkpoint**: The public repository is understandable without private project context.
 
@@ -126,13 +126,13 @@ architecture, local commands, privacy rule, consensus rule, and security-reporti
 
 **Purpose**: Verify cross-cutting quality and publish the empty-data beta.
 
-- [ ] T026 [P] Add an accessible not-found page and crawler policy in `public/404.html` and `public/robots.txt`
-- [ ] T027 Run syntax, unit, endpoint contract, and content checks using commands in `package.json`
-- [ ] T028 Run responsive, keyboard, reduced-motion, and visual checks from `specs/001-community-schedule-tracker/quickstart.md`
-- [ ] T029 Initialize Git history and create the public `bkubwimana/berkeley-trash-day` repository
-- [ ] T030 Link the project to a new Netlify site named `berkeleytrashday` and deploy production
-- [ ] T031 Smoke-test empty state, invalid input, privacy, official contact, and security headers at `https://berkeleytrashday.netlify.app`
-- [ ] T032 Confirm the production report store contains no fabricated test observations
+- [x] T026 [P] Add an accessible not-found page and crawler policy in `public/404.html` and `public/robots.txt`
+- [x] T027 Run syntax, unit, endpoint contract, and content checks using commands in `package.json`
+- [x] T028 Run responsive, keyboard, reduced-motion, and visual checks from `specs/001-community-schedule-tracker/quickstart.md`
+- [x] T029 Initialize Git history and create the public `bkubwimana/berkeley-trash-day` repository
+- [x] T030 Link the project to a new Netlify site named `berkeleytrashday` and deploy production
+- [x] T031 Smoke-test empty state, invalid input, privacy, official contact, and security headers at `https://berkeleytrashday.netlify.app`
+- [x] T032 Confirm the production report store contains no fabricated test observations
 
 ---
 

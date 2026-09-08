@@ -1,0 +1,76 @@
+export const CORRIDOR = [
+  { block: "2100", startStreet: "Addison Street", endStreet: "Allston Way" },
+  { block: "2200", startStreet: "Allston Way", endStreet: "Bancroft Way" },
+  { block: "2300", startStreet: "Bancroft Way", endStreet: "Channing Way" },
+  { block: "2400", startStreet: "Channing Way", endStreet: "Dwight Way" }
+];
+
+export const STREAMS = [
+  { id: "trash", label: "Trash" },
+  { id: "recycling", label: "Recycling" },
+  { id: "compost", label: "Compost" }
+];
+
+export function buildCorridorView(schedule, selectedBlock, loadFailed = false) {
+  return CORRIDOR.map((segment) => {
+    const blockSchedule = schedule?.blocks?.[segment.block];
+    const loading = !schedule && !loadFailed;
+    const activeStreams = Object.fromEntries(STREAMS.map(({ id }) => [
+      id,
+      !loadFailed && (blockSchedule?.[id]?.total ?? 0) > 0
+    ]));
+    const totalReports = loading || loadFailed
+      ? null
+      : STREAMS.reduce((total, { id }) => total + (blockSchedule?.[id]?.total ?? 0), 0);
+    const coveredStreams = loading || loadFailed
+      ? null
+      : Object.values(activeStreams).filter(Boolean).length;
+    const activityText = loadFailed
+      ? "Community activity unavailable"
+      : loading
+        ? "Loading community activity"
+        : `${totalReports} recent community ${totalReports === 1 ? "report" : "reports"} across ${coveredStreams} of 3 streams`;
+
+    return {
+      ...segment,
+      activeStreams,
+      totalReports,
+      coveredStreams,
+      activityText,
+      selected: segment.block === selectedBlock
+    };
+  });
+}
+
+export function formatSummary(summary, loadFailed = false) {
+  if (loadFailed) {
+    return {
+      day: "Unavailable",
+      detail: "Community data could not be loaded. Try again shortly.",
+      tone: "error"
+    };
+  }
+
+  if (!summary || summary.total === 0) {
+    return {
+      day: "No reports yet",
+      detail: "Be the first to share an observed day",
+      tone: "empty"
+    };
+  }
+
+  return {
+    day: summary.day,
+    detail: `${summary.winningReports} of ${summary.total} recent reports agree · ${summary.status}`,
+    tone: summary.status === "Community consensus" ? "consensus" : "developing"
+  };
+}
+
+export function makeReportPayload(values) {
+  return {
+    block: values.block,
+    stream: values.stream,
+    day: values.day,
+    website: values.website || ""
+  };
+}

@@ -53,12 +53,16 @@ npm run check
 
 ## Architecture
 
-- Static HTML, CSS, and browser JavaScript
+- React components and a Vite production build
+- A pure corridor view model shared by the interface tests
 - Netlify Functions for the read and submit APIs
 - Netlify Blobs for small community-report records
 - Function-level IP rate limiting and a form honeypot for basic abuse resistance
 
-No map provider, analytics SDK, account system, or client-side tracking is included.
+The first four-block view is a CSS schematic validated against OpenStreetMap street
+labels—not a live tile map. The component boundary leaves room for a future MapLibre
+and GeoJSON view when coverage expands. No analytics SDK, account system, geolocation,
+or client-side tracking is included.
 
 ## API
 
