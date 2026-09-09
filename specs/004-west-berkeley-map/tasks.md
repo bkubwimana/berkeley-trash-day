@@ -12,4 +12,4 @@
 - [x] T010 Update privacy disclosure and complete footer attribution
 - [x] T011 Run unit, content, build, syntax, and audit checks
 - [x] T012 Capture and inspect desktop and 320-pixel screenshots and exercise selection/search
-- [ ] T013 Push the public repository and deploy to Netlify
+- [x] T013 Push the public repository and deploy to Netlify
