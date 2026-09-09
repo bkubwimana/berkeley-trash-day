@@ -14,3 +14,4 @@
 - [x] T010 Add content, source-placement, theme, logo, and calendar assertions
 - [x] T011 Run automated, build, accessibility, responsive, and live-data checks
 - [x] T012 Commit, push, deploy, and smoke-test production
+- [x] T013 Add and verify a vector location pin and corridor caption

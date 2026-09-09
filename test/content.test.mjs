@@ -66,6 +66,8 @@ test("corridor makes no verification or confidence claim", async () => {
   assert.doesNotMatch(corridor, /verified|confidence|\d+%/i);
   assert.doesNotMatch(corridor, /OpenStreetMap|Schematic street labels/);
   assert.match(corridor, /className="sr-only"> block/);
+  assert.match(corridor, /className="location-pin"/);
+  assert.match(corridor, /9th Street corridor · Berkeley, CA/);
 });
 
 test("React UI uses recognizable inline collection symbols", async () => {

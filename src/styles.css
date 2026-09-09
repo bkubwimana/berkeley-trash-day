@@ -328,6 +328,23 @@ h2 {
 .marker-3 { left: 75%; }
 .marker-4 { right: 0; }
 
+.corridor-location {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+
+.location-pin {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  color: #df5b46;
+}
+
 .block-button {
   position: relative;
   z-index: 2;

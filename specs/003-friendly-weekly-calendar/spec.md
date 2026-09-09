@@ -46,6 +46,8 @@ A visitor sees uncluttered address numbers on the road while source attribution 
 - **FR-010**: Road segments MUST visually omit the repeated word “block” while retaining it for assistive technology.
 - **FR-011**: OpenStreetMap attribution MUST be placed in the site footer, not inside the corridor.
 - **FR-012**: The calendar and corridor MUST fit at 320 CSS pixels without horizontal page overflow.
+- **FR-013**: The corridor MUST identify “9th Street corridor · Berkeley, CA” with a
+  recognizable vector map-pin symbol that does not depend on emoji rendering.
 
 ## Success Criteria
 
@@ -54,4 +56,4 @@ A visitor sees uncluttered address numbers on the road while source attribution 
 - **SC-003**: Desktop and 320-pixel screenshots show no horizontal overflow.
 - **SC-004**: The rendered header contains no “BT” text.
 - **SC-005**: OpenStreetMap attribution is visible after the main content and absent from the corridor.
-
+- **SC-006**: The location caption remains legible and aligned at desktop and 320 CSS pixels.

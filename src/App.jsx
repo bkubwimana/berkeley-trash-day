@@ -65,6 +65,22 @@ function Corridor({ schedule, selectedBlock, loadFailed, onSelect }) {
           </button>
         ))}
       </div>
+      <p className="corridor-location">
+        <svg
+          className="location-pin"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M8 14.5S12.5 10.6 12.5 6.5a4.5 4.5 0 1 0-9 0C3.5 10.6 8 14.5 8 14.5Z" />
+          <circle cx="8" cy="6.5" r="1.55" />
+        </svg>
+        <span>9th Street corridor · Berkeley, CA</span>
+      </p>
     </div>
   );
 }
