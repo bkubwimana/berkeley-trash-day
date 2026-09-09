@@ -88,7 +88,10 @@ test("React UI uses recognizable inline collection symbols", async () => {
 
 test("MapLibre canvas shell and accessible results are styled", async () => {
   const css = await readFile(new URL("src/styles.css", root), "utf8");
-  assert.match(css, /\.map-canvas/);
+  assert.match(
+    css,
+    /\.map-stage\s*>\s*\.map-canvas\s*\{[^}]*position:\s*absolute;[^}]*width:\s*100%;[^}]*height:\s*100%;/s,
+  );
   assert.match(css, /\.map-search-results/);
   assert.match(css, /\.range-list/);
 });

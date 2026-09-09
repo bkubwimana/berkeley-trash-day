@@ -2,7 +2,7 @@
 
 **Feature Branch**: `004-west-berkeley-map`
 **Created**: 2026-09-08
-**Status**: In progress
+**Status**: Complete
 **Input**: Replace the fixed corridor drawing with a scalable, attractive canvas map for searching and expanding across West Berkeley.
 
 ## User Scenarios & Testing
@@ -48,6 +48,7 @@ A keyboard, screen-reader, reduced-data, or no-WebGL visitor can select the same
 - **FR-012**: The implementation MUST fit at 320 CSS pixels and honor reduced motion.
 - **FR-013**: The selected-range summary MUST use a vector location pin instead of a punctuation dot.
 - **FR-014**: The report API and stored report schema MUST remain limited to fixed block identifiers, stream, weekday, and receipt time.
+- **FR-015**: The MapLibre host MUST fill the visible map stage even when the library stylesheet loads after application styles.
 
 ## Success Criteria
 
@@ -56,6 +57,7 @@ A keyboard, screen-reader, reduced-data, or no-WebGL visitor can select the same
 - **SC-003**: Clicking or searching a range changes all five dependent views to the same identifier.
 - **SC-004**: A failed map load introduces zero false schedule claims and does not block lookup or reporting.
 - **SC-005**: Desktop and 320-pixel screenshots have no page-level horizontal overflow.
+- **SC-006**: In a production browser, the MapLibre host has the same non-zero height as the visible map stage and the basemap is visible.
 
 ## Scope
 

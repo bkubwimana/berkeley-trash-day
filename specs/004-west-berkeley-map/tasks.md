@@ -13,3 +13,6 @@
 - [x] T011 Run unit, content, build, syntax, and audit checks
 - [x] T012 Capture and inspect desktop and 320-pixel screenshots and exercise selection/search
 - [x] T013 Push the public repository and deploy to Netlify
+- [x] T014 Reproduce the blank production canvas and identify the zero-height MapLibre host
+- [x] T015 Add a stylesheet-order regression test and force the MapLibre host to fill the stage
+- [x] T016 Verify the rendered basemap in a production build, push, and redeploy
