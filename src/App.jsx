@@ -287,7 +287,7 @@ export default function App() {
 
         <section className="method-section" aria-labelledby="method-title">
           <p className="kicker">How confidence works</p>
-          <h2 id="method-title">Counts, not mystery scores.</h2>
+          <h2 id="method-title">Transparent counts.</h2>
           <div className="method-grid">
             <article><span>01</span><h3>Neighbors report</h3><p>People submit only a block, collection type, and observed day.</p></article>
             <article><span>02</span><h3>Reports agree</h3><p>We show the leading day and exactly how many recent reports support it.</p></article>
