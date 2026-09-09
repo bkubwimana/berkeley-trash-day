@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { CollectionIcon } from "./CollectionIcon.jsx";
 import {
   CORRIDOR,
@@ -9,79 +9,22 @@ import {
   formatSummary,
   makeReportPayload
 } from "./corridor.mjs";
-const CROSS_STREETS = ["Addison Street", "Allston Way", "Bancroft Way", "Channing Way", "Dwight Way"];
-
-function Corridor({ schedule, selectedBlock, loadFailed, onSelect }) {
-  const segments = buildCorridorView(schedule, selectedBlock, loadFailed);
-
+const WestBerkeleyMap = lazy(() => import("./WestBerkeleyMap.jsx").then((module) => ({ default: module.WestBerkeleyMap })));
+function LocationPinIcon({ className = "" }) {
   return (
-    <div className="corridor">
-      <div className="corridor-labels" aria-hidden="true">
-        {CROSS_STREETS.map((street) => <span key={street}>{street}</span>)}
-      </div>
-      <div className="block-strip" role="group" aria-label="9th Street block">
-        <span className="street-line" aria-hidden="true" />
-        {CROSS_STREETS.map((street, index) => (
-          <span className={`intersection-marker marker-${index}`} aria-hidden="true" key={street} />
-        ))}
-        {segments.map((segment) => (
-          <button
-            className={`block-button${segment.selected ? " is-active" : ""}`}
-            type="button"
-            data-block={segment.block}
-            aria-pressed={segment.selected}
-            onClick={() => onSelect(segment.block)}
-            key={segment.block}
-          >
-            <span className="segment-activity">
-              <span className="activity-signals" aria-hidden="true">
-                {STREAMS.map(({ id }) => (
-                  <span
-                    className={[
-                      "activity-signal",
-                      `activity-${id}`,
-                      segment.activeStreams[id] ? "is-active" : "",
-                      loadFailed ? "is-unavailable" : ""
-                    ].filter(Boolean).join(" ")}
-                    data-signal={id}
-                    key={id}
-                  />
-                ))}
-              </span>
-              <span className="segment-total" data-report-total>
-                {segment.totalReports === null
-                  ? (loadFailed ? "Unavailable" : "Loading…")
-                  : `${segment.totalReports} ${segment.totalReports === 1 ? "report" : "reports"}`}
-              </span>
-            </span>
-            <span className="segment-block">
-              <strong className="block-number">{segment.block}</strong>
-              <span className="sr-only"> block</span>
-            </span>
-            <span className="segment-bounds">{segment.startStreet} → {segment.endStreet}</span>
-            <span className="sr-only" data-activity-text>
-              {segment.startStreet} to {segment.endStreet}. {segment.activityText}.
-            </span>
-          </button>
-        ))}
-      </div>
-      <p className="corridor-location">
-        <svg
-          className="location-pin"
-          viewBox="0 0 16 16"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M8 14.5S12.5 10.6 12.5 6.5a4.5 4.5 0 1 0-9 0C3.5 10.6 8 14.5 8 14.5Z" />
-          <circle cx="8" cy="6.5" r="1.55" />
-        </svg>
-        <span>9th Street corridor · Berkeley, CA</span>
-      </p>
-    </div>
+    <svg
+      className={["location-pin", className].filter(Boolean).join(" ")}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M8 14.5S12.5 10.6 12.5 6.5a4.5 4.5 0 1 0-9 0C3.5 10.6 8 14.5 8 14.5Z" />
+      <circle cx="8" cy="6.5" r="1.55" />
+    </svg>
   );
 }
 
@@ -94,7 +37,10 @@ function BlockSummary({ segment, loadFailed }) {
     <div className="block-summary" aria-live="polite">
       <div>
         <span>Selected range</span>
-        <strong><span id="selected-block">{segment?.block ?? "2100"}</span> · 9th Street</strong>
+        <strong className="selected-range-value">
+          <span id="selected-block">{segment?.block ?? "2100"}</span>
+          <span className="selected-street"><LocationPinIcon className="selected-range-pin" />9th Street</span>
+        </strong>
       </div>
       <div>
         <span>Recent reports</span>
@@ -290,7 +236,7 @@ export default function App() {
               <span className="pill pill-muted">Unofficial</span>
             </div>
             <h1 id="page-title">Find your block.<br />Know your day.</h1>
-            <p className="lede">A neighbor-powered guide to trash, recycling, and compost pickup days, starting with four blocks of 9th Street.</p>
+            <p className="lede">A neighbor-powered guide to trash, recycling, and compost pickup days, beginning on 9th Street and built to grow across West Berkeley.</p>
           </div>
           <aside className="official-note">
             <span className="note-icon" aria-hidden="true">i</span>
@@ -306,12 +252,14 @@ export default function App() {
         <section className="tracker" aria-labelledby="tracker-title">
           <div className="section-heading">
             <div>
-              <p className="kicker">9th Street · Berkeley, California</p>
-              <h2 id="tracker-title">Choose your block</h2>
+              <p className="kicker">West Berkeley · California</p>
+              <h2 id="tracker-title">Find your street</h2>
             </div>
-            <span className="updated">Community data</span>
+            <span className="updated">4 ranges live</span>
           </div>
-          <Corridor schedule={schedule} selectedBlock={block} loadFailed={loadFailed} onSelect={setBlock} />
+          <Suspense fallback={<p className="map-module-loading" role="status">Preparing West Berkeley map…</p>}>
+            <WestBerkeleyMap selectedBlock={block} onSelect={setBlock} />
+          </Suspense>
           <BlockSummary segment={selectedSegment} loadFailed={loadFailed} />
           <WeeklyCalendar block={block} blockSchedule={schedule?.blocks?.[block]} loadFailed={loadFailed} />
           <div className="schedule-heading">
@@ -353,7 +301,8 @@ export default function App() {
           <strong>Berkeley Trash Day</strong>
           <p>An open-source community project. Not affiliated with the City of Berkeley.</p>
           <p className="map-source">
-            Street reference: <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>
+            Basemap: <a href="https://openfreemap.org/">OpenFreeMap</a> · <a href="https://openmaptiles.org/">© OpenMapTiles</a> · data <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>.<br />
+            Expansion reference: <a href="https://data.cityofberkeley.info/Transportation/Streets-Network/hqnk-qfhq">City of Berkeley Streets Network</a>.
           </p>
         </div>
         <div className="footer-links">

@@ -34,9 +34,9 @@ test("privacy page states collected and excluded data", async () => {
   assert.match(html, /does not\s+sell community-report data/i);
 });
 
-test("corridor uses real cross streets in order with map-data attribution", async () => {
+test("map uses real cross streets in order with complete data attribution", async () => {
   const html = await readFile(new URL("src/App.jsx", root), "utf8");
-  const model = await readFile(new URL("src/corridor.mjs", root), "utf8");
+  const model = await readFile(new URL("src/map-data.mjs", root), "utf8");
   const streets = ["Addison Street", "Allston Way", "Bancroft Way", "Channing Way", "Dwight Way"];
   let previousIndex = -1;
 
@@ -46,28 +46,33 @@ test("corridor uses real cross streets in order with map-data attribution", asyn
     previousIndex = currentIndex;
   }
 
+  assert.match(html, /OpenFreeMap/);
+  assert.match(html, /OpenMapTiles/);
   assert.match(html, /© OpenStreetMap contributors/);
   assert.ok(html.indexOf("© OpenStreetMap contributors") > html.indexOf("<footer>"));
-  assert.match(model, /id: "trash"/);
-  assert.match(model, /id: "recycling"/);
-  assert.match(model, /id: "compost"/);
-  assert.match(html, /data-signal=\{id\}/);
-  assert.match(html, /data-report-total/);
+  assert.match(html, /City of Berkeley Streets Network/);
+  assert.match(html, /WestBerkeleyMap/);
   assert.match(html, /selected-report-total/);
   assert.match(html, /selected-stream-coverage/);
 });
 
-test("corridor makes no verification or confidence claim", async () => {
-  const html = await readFile(new URL("src/App.jsx", root), "utf8");
-  const start = html.indexOf('className="corridor"');
-  const end = html.indexOf("function BlockSummary");
-  const corridor = html.slice(start, end);
+test("map has an accessible non-canvas range selector and honest coverage copy", async () => {
+  const map = await readFile(new URL("src/WestBerkeleyMap.jsx", root), "utf8");
+  assert.match(map, /Search supported ranges/);
+  assert.match(map, /No live community range matches that search yet/);
+  assert.match(map, /aria-pressed/);
+  assert.match(map, /Map unavailable/);
+  assert.doesNotMatch(map, /verified|confidence|\d+%/i);
+});
 
-  assert.doesNotMatch(corridor, /verified|confidence|\d+%/i);
-  assert.doesNotMatch(corridor, /OpenStreetMap|Schematic street labels/);
-  assert.match(corridor, /className="sr-only"> block/);
-  assert.match(corridor, /className="location-pin"/);
-  assert.match(corridor, /9th Street corridor · Berkeley, CA/);
+test("selected range uses a location pin instead of punctuation", async () => {
+  const html = await readFile(new URL("src/App.jsx", root), "utf8");
+  const start = html.indexOf('function BlockSummary');
+  const end = html.indexOf('function WeeklyCalendar');
+  const summary = html.slice(start, end);
+
+  assert.match(summary, /selected-range-pin/);
+  assert.doesNotMatch(summary, /· 9th Street/);
 });
 
 test("React UI uses recognizable inline collection symbols", async () => {
@@ -81,13 +86,18 @@ test("React UI uses recognizable inline collection symbols", async () => {
   assert.match(icons, /collection-icon/);
 });
 
-test("corridor CSS layers a street over parcel-like blocks on a map grid", async () => {
+test("MapLibre canvas shell and accessible results are styled", async () => {
   const css = await readFile(new URL("src/styles.css", root), "utf8");
+  assert.match(css, /\.map-canvas/);
+  assert.match(css, /\.map-search-results/);
+  assert.match(css, /\.range-list/);
+});
 
-  assert.match(css, /\.corridor[\s\S]*background-image:/);
-  assert.match(css, /\.street-line[\s\S]*z-index: 4/);
-  assert.match(css, /\.intersection-marker[\s\S]*z-index: 5/);
-  assert.match(css, /\.activity-signal[\s\S]*background: currentColor/);
+test("privacy page discloses third-party map tile requests", async () => {
+  const html = await readFile(new URL("privacy.html", root), "utf8");
+  assert.match(html, /OpenFreeMap/i);
+  assert.match(html, /map tiles/i);
+  assert.match(html, /IP address/i);
 });
 
 test("light theme, generated logo, and weekly calendar are present", async () => {

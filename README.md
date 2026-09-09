@@ -54,15 +54,23 @@ npm run check
 ## Architecture
 
 - React components and a Vite production build
-- A pure corridor view model shared by the interface tests
+- A lazily loaded MapLibre GL JS canvas with OpenFreeMap vector tiles
+- A versioned local service-area registry with pure search and GeoJSON helpers
 - Netlify Functions for the read and submit APIs
 - Netlify Blobs for small community-report records
 - Function-level IP rate limiting and a form honeypot for basic abuse resistance
 
-The first four-block view is a CSS schematic validated against OpenStreetMap street
-labels—not a live tile map. The component boundary leaves room for a future MapLibre
-and GeoJSON view when coverage expands. No analytics SDK, account system, geolocation,
-or client-side tracking is included.
+The map can browse West Berkeley, while only the four registry-backed Ninth Street
+ranges are highlighted and open for reports. Their line geometry follows public
+OpenStreetMap street centerlines. Future range expansion should be reviewed against the
+[City of Berkeley Streets Network](https://data.cityofberkeley.info/Transportation/Streets-Network/hqnk-qfhq),
+which includes street segment address ranges. Visible basemap streets do not imply
+schedule coverage.
+
+Range search runs locally in the browser and sends no search text to a geocoder. The map
+loads style and tile resources from OpenFreeMap, whose servers receive ordinary web
+connection data. No analytics SDK, account system, geolocation permission, or
+client-side tracking is included.
 
 The selected range also has a seven-day community calendar. It places collection streams
 only on weekdays supported by recent reports and keeps holiday limitations visible.
