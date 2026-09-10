@@ -27,7 +27,6 @@ html {
 
 body {
   margin: 0;
-  min-width: 320px;
   background:
     radial-gradient(circle at 82% -10%, rgba(74, 139, 82, 0.16), transparent 35rem),
     var(--bg);
@@ -1112,6 +1111,13 @@ select {
   padding: 5px;
   border-radius: 12px;
   background: var(--panel-3);
+}
+
+.field-hint {
+  margin: 0 0 9px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
 }
 
 .segmented-control input {

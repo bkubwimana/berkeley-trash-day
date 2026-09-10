@@ -21,7 +21,8 @@ test("report form has no identity, exact-address, comment, photo, or location fi
     assert.doesNotMatch(html, new RegExp(`name=["']${prohibited}["']`, "i"));
   }
   assert.match(html, /name="block"/);
-  assert.match(html, /name="stream"/);
+  assert.match(html, /type="checkbox" name="streams"/);
+  assert.match(html, /Select every cart collected on that day/);
   assert.match(html, /name="day"/);
   assert.match(html, /name="confirmed"/);
 });
@@ -50,7 +51,8 @@ test("map uses real cross streets in order with complete data attribution", asyn
   assert.match(html, /OpenMapTiles/);
   assert.match(html, /© OpenStreetMap contributors/);
   assert.ok(html.indexOf("© OpenStreetMap contributors") > html.indexOf("<footer>"));
-  assert.match(html, /City of Berkeley Streets Network/);
+  assert.match(html, /City of Berkeley Community GIS Portal/);
+  assert.doesNotMatch(html, /hqnk-qfhq/);
   assert.match(html, /WestBerkeleyMap/);
   assert.match(html, /selected-report-total/);
   assert.match(html, /selected-stream-coverage/);
@@ -115,4 +117,5 @@ test("light theme, generated logo, and weekly calendar are present", async () =>
   assert.match(app, /function WeeklyCalendar/);
   assert.match(app, /Community week/);
   assert.match(app, /Holiday changes may not appear/);
+  assert.doesNotMatch(css, /body\s*\{[^}]*min-width:\s*320px/s);
 });

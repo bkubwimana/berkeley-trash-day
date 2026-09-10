@@ -40,7 +40,7 @@ labeled result.
 
 ### User Story 2 - Report an Observed Day (Priority: P2)
 
-A neighbor reports the collection type and pickup day they observed for a supported block
+A neighbor reports one or more collection types and the pickup day they observed for a supported block
 without creating an account or sharing an exact address.
 
 **Why this priority**: The lookup becomes useful only when neighbors can contribute recent
@@ -52,7 +52,7 @@ without changing the result.
 
 **Acceptance Scenarios**:
 
-1. **Given** a neighbor selects an allowed block, collection type, and weekday and confirms
+1. **Given** a neighbor selects an allowed block, one or more collection types, and a weekday and confirms
    the observation, **When** they submit, **Then** the service records the report, thanks
    them, and refreshes the community result.
 2. **Given** a submission includes an unsupported value, arbitrary text, or is too large,
@@ -138,12 +138,13 @@ license, specification, privacy rules, local setup steps, tests, and contributio
   recent reports exist and at least 67% support the leading weekday.
 - **FR-005**: The service MUST display a no-reports state without implying a pickup day when
   no recent report exists for a block and collection type.
-- **FR-006**: A neighbor MUST be able to submit exactly one supported block, one collection
-  type, and one weekday after affirming that they observed or confirmed the schedule.
+- **FR-006**: A neighbor MUST be able to submit exactly one supported block, one or more
+  collection types collected on the same weekday, and one weekday after affirming that
+  they observed or confirmed the schedule.
 - **FR-007**: The service MUST reject unsupported enumerated values, arbitrary resident
   text, malformed submissions, and submissions exceeding the documented size limit.
-- **FR-008**: The application record for a report MUST contain only block, collection type,
-  weekday, receipt time, fixed location label, and community provenance.
+- **FR-008**: The application record for a report MUST contain only block, selected
+  collection types, weekday, receipt time, fixed location label, and community provenance.
 - **FR-009**: The report experience MUST NOT request a name, account, email, telephone
   number, exact address, photograph, free-form comment, or precise coordinates.
 - **FR-010**: Reports older than 180 days MUST NOT influence displayed results.
@@ -166,8 +167,9 @@ license, specification, privacy rules, local setup steps, tests, and contributio
 
 ### Key Entities
 
-- **Community Report**: One recent observation for a supported block and collection type;
-  contains a weekday, receipt time, fixed Berkeley location label, and community provenance.
+- **Community Report**: One recent observation for a supported block and one or more
+  collection types; contains a weekday, receipt time, fixed Berkeley location label, and
+  community provenance.
 - **Block Schedule**: The three current collection-type summaries for one supported block.
 - **Collection Summary**: A leading weekday, supporting count, total recent count, agreement
   percentage, and status calculated from Community Reports.

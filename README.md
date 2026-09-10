@@ -20,7 +20,7 @@ view without publishing exact home addresses or opaque confidence scores.
 Each report stores only:
 
 - Block range
-- Collection stream
+- One or more collection streams observed on the same day
 - Observed weekday
 - Server receipt time
 
@@ -63,9 +63,8 @@ npm run check
 The map can browse West Berkeley, while only the four registry-backed Ninth Street
 ranges are highlighted and open for reports. Their line geometry follows public
 OpenStreetMap street centerlines. Future range expansion should be reviewed against the
-[City of Berkeley Streets Network](https://data.cityofberkeley.info/Transportation/Streets-Network/hqnk-qfhq),
-which includes street segment address ranges. Visible basemap streets do not imply
-schedule coverage.
+[City of Berkeley Community GIS Portal](https://berkeleyca.gov/city-services/community-gis-portal).
+Visible basemap streets do not imply schedule coverage.
 
 Range search runs locally in the browser and sends no search text to a geocoder. The map
 loads style and tile resources from OpenFreeMap, whose servers receive ordinary web
@@ -84,10 +83,13 @@ only on weekdays supported by recent reports and keeps holiday limitations visib
 ```json
 {
   "block": "2100",
-  "stream": "trash",
+  "streams": ["trash", "recycling", "compost"],
   "day": "Tuesday"
 }
 ```
+
+Every selected stream receives one observation for the shared day. If streams are
+collected on different days, send a separate report for each same-day group.
 
 Valid blocks and collection streams are intentionally limited in
 [`src/reporting.mjs`](src/reporting.mjs).

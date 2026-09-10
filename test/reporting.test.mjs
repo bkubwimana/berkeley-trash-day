@@ -19,17 +19,32 @@ test("exposes only the four beta blocks and fixed civic enumerations", () => {
   ]);
 });
 
-test("accepts a supported anonymous report", () => {
-  const result = validateReport({ block: "2100", stream: "trash", day: "Tuesday", website: "" });
+test("accepts a supported anonymous multi-stream report", () => {
+  const result = validateReport({
+    block: "2100",
+    streams: ["trash", "recycling", "compost"],
+    day: "Tuesday",
+    website: ""
+  });
   assert.equal(result.ok, true);
-  assert.deepEqual(result.value, { block: "2100", stream: "trash", day: "Tuesday" });
+  assert.deepEqual(result.value, {
+    block: "2100",
+    streams: ["trash", "recycling", "compost"],
+    day: "Tuesday"
+  });
 });
 
 test("rejects unsupported values and honeypot submissions", () => {
-  const result = validateReport({ block: "9999", stream: "glass", day: "Tomorrow", website: "spam" });
+  const result = validateReport({ block: "9999", streams: ["glass"], day: "Tomorrow", website: "spam" });
   assert.equal(result.ok, false);
   assert.equal(result.errors.length, 4);
   assert.equal(result.value, null);
+});
+
+test("rejects empty, duplicate, and mixed stream selections", () => {
+  assert.equal(validateReport({ block: "2100", streams: [], day: "Tuesday" }).ok, false);
+  assert.equal(validateReport({ block: "2100", streams: ["trash", "trash"], day: "Tuesday" }).ok, false);
+  assert.equal(validateReport({ block: "2100", stream: "trash", streams: ["trash"], day: "Tuesday" }).ok, false);
 });
 
 test("rejects arrays, missing values, and extra fields", () => {
@@ -66,6 +81,20 @@ test("shows one observation as developing", () => {
     agreementPercent: 100,
     status: "Developing"
   });
+});
+
+test("counts one multi-stream record on the same day for every selected stream", () => {
+  const blocks = aggregateReports([{
+    block: "2100",
+    streams: ["trash", "recycling", "compost"],
+    day: "Tuesday",
+    reportedAt
+  }], now);
+
+  for (const stream of STREAMS) {
+    assert.equal(blocks["2100"][stream].day, "Tuesday");
+    assert.equal(blocks["2100"][stream].total, 1);
+  }
 });
 
 test("publishes consensus only after three reports and two-thirds agreement", () => {

@@ -124,9 +124,21 @@ function ReportForm({ block, onBlockChange, onRecorded }) {
 
   async function submitReport(event) {
     event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const payload = makeReportPayload({
+      block: formData.get("block"),
+      streams: formData.getAll("streams"),
+      day: formData.get("day"),
+      website: formData.get("website")
+    });
+
+    if (payload.streams.length === 0) {
+      setStatus({ text: "Select at least one collection type.", tone: "error" });
+      return;
+    }
+
     setSubmitting(true);
     setStatus({ text: "Submitting…", tone: "" });
-    const payload = makeReportPayload(Object.fromEntries(new FormData(event.currentTarget).entries()));
 
     try {
       const response = await fetch("/api/reports", {
@@ -136,7 +148,11 @@ function ReportForm({ block, onBlockChange, onRecorded }) {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Report could not be submitted.");
-      setStatus({ text: "Thank you — your community report was recorded.", tone: "success" });
+      const recorded = payload.streams.length;
+      setStatus({
+        text: `Thank you — ${recorded === 1 ? "your report was" : `${recorded} collection reports were`} recorded.`,
+        tone: "success"
+      });
       formRef.current?.reset();
       await onRecorded();
     } catch (error) {
@@ -154,12 +170,15 @@ function ReportForm({ block, onBlockChange, onRecorded }) {
           {CORRIDOR.map((segment) => <option value={segment.block} key={segment.block}>{segment.block} block</option>)}
         </select>
       </div>
-      <fieldset>
-        <legend>Collection type</legend>
+      <fieldset aria-describedby="collection-types-hint">
+        <legend>Collection types</legend>
+        <p id="collection-types-hint" className="field-hint">
+          Select every cart collected on that day. If days differ, submit another report.
+        </p>
         <div className="segmented-control">
-          {STREAMS.map((stream, index) => (
+          {STREAMS.map((stream) => (
             <label key={stream.id}>
-              <input type="radio" name="stream" value={stream.id} defaultChecked={index === 0} />
+              <input type="checkbox" name="streams" value={stream.id} />
               <span>{stream.label}</span>
             </label>
           ))}
@@ -289,7 +308,7 @@ export default function App() {
           <p className="kicker">How confidence works</p>
           <h2 id="method-title">Transparent counts.</h2>
           <div className="method-grid">
-            <article><span>01</span><h3>Neighbors report</h3><p>People submit only a block, collection type, and observed day.</p></article>
+            <article><span>01</span><h3>Neighbors report</h3><p>People submit only a block, selected collection types, and observed day.</p></article>
             <article><span>02</span><h3>Reports agree</h3><p>We show the leading day and exactly how many recent reports support it.</p></article>
             <article><span>03</span><h3>Consensus appears</h3><p>At least three reports and two-thirds agreement are required.</p></article>
           </div>
@@ -302,7 +321,7 @@ export default function App() {
           <p>An open-source community project. Not affiliated with the City of Berkeley.</p>
           <p className="map-source">
             Basemap: <a href="https://openfreemap.org/">OpenFreeMap</a> · <a href="https://openmaptiles.org/">© OpenMapTiles</a> · data <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>.<br />
-            Expansion reference: <a href="https://data.cityofberkeley.info/Transportation/Streets-Network/hqnk-qfhq">City of Berkeley Streets Network</a>.
+            Expansion reference: <a href="https://berkeleyca.gov/city-services/community-gis-portal">City of Berkeley Community GIS Portal</a>.
           </p>
         </div>
         <div className="footer-links">

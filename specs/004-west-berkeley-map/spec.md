@@ -47,7 +47,7 @@ A keyboard, screen-reader, reduced-data, or no-WebGL visitor can select the same
 - **FR-011**: Footer attribution MUST credit OpenFreeMap, OpenMapTiles, OpenStreetMap contributors, and Berkeley's street network source.
 - **FR-012**: The implementation MUST fit at 320 CSS pixels and honor reduced motion.
 - **FR-013**: The selected-range summary MUST use a vector location pin instead of a punctuation dot.
-- **FR-014**: The report API and stored report schema MUST remain limited to fixed block identifiers, stream, weekday, and receipt time.
+- **FR-014**: The report API and stored report schema MUST remain limited to fixed block identifiers, selected streams, weekday, and receipt time.
 - **FR-015**: The MapLibre host MUST fill the visible map stage even when the library stylesheet loads after application styles.
 
 ## Success Criteria

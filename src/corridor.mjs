@@ -101,7 +101,7 @@ export function buildWeeklyCalendar(blockSchedule, loadFailed = false) {
 export function makeReportPayload(values) {
   return {
     block: values.block,
-    stream: values.stream,
+    streams: Array.isArray(values.streams) ? [...values.streams] : [],
     day: values.day,
     website: values.website || ""
   };

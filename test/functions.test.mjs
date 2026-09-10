@@ -68,7 +68,7 @@ test("POST report stores only the constrained application record", async () => {
   const response = await handler(new Request("https://example.test/api/reports", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ block: "2100", stream: "trash", day: "Tuesday", website: "" })
+    body: JSON.stringify({ block: "2100", streams: ["trash", "recycling"], day: "Tuesday", website: "" })
   }));
 
   assert.equal(response.status, 201);
@@ -76,7 +76,7 @@ test("POST report stores only the constrained application record", async () => {
   assert.equal(memory.records.size, 1);
   assert.deepEqual(JSON.parse(memory.records.get("reports/2100/report-id")), {
     block: "2100",
-    stream: "trash",
+    streams: ["trash", "recycling"],
     day: "Tuesday",
     reportedAt: "2026-09-07T12:00:00.000Z",
     street: "9th Street",
@@ -92,15 +92,15 @@ test("report endpoint rejects malformed, unsupported, honeypot, and oversized in
     new Request("https://example.test/api/reports", { method: "POST", body: "{" }),
     new Request("https://example.test/api/reports", {
       method: "POST",
-      body: JSON.stringify({ block: "9999", stream: "trash", day: "Tuesday" })
+      body: JSON.stringify({ block: "9999", streams: ["trash"], day: "Tuesday" })
     }),
     new Request("https://example.test/api/reports", {
       method: "POST",
-      body: JSON.stringify({ block: "2100", stream: "trash", day: "Tuesday", website: "bot" })
+      body: JSON.stringify({ block: "2100", streams: ["trash"], day: "Tuesday", website: "bot" })
     }),
     new Request("https://example.test/api/reports", {
       method: "POST",
-      body: JSON.stringify({ block: "2100", stream: "trash", day: "Tuesday", comment: "x".repeat(2100) })
+      body: JSON.stringify({ block: "2100", streams: ["trash"], day: "Tuesday", comment: "x".repeat(2100) })
     })
   ];
 

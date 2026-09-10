@@ -86,14 +86,14 @@ test("formats empty, developing, consensus, and unavailable schedule states", ()
 test("builds only the constrained report payload", () => {
   const payload = makeReportPayload({
     block: "2200",
-    stream: "compost",
+    streams: ["trash", "compost"],
     day: "Thursday",
     website: "",
     exactAddress: "must not pass through"
   });
   assert.deepEqual(payload, {
     block: "2200",
-    stream: "compost",
+    streams: ["trash", "compost"],
     day: "Thursday",
     website: ""
   });
