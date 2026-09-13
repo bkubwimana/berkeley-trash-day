@@ -520,6 +520,35 @@ h2 {
   white-space: nowrap;
 }
 
+.range-show-more {
+  display: flex;
+  width: 100%;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--green-dark);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 760;
+}
+
+.range-show-more:hover {
+  border-color: rgba(47, 113, 59, 0.52);
+  background: var(--panel-2);
+}
+
+.range-show-more span {
+  color: var(--muted);
+  font-size: 0.64rem;
+  font-weight: 650;
+}
+
 .empty-search {
   min-height: 70px;
   display: grid;

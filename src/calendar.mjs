@@ -51,11 +51,21 @@ function escapeCalendarText(value) {
     .replace(/;/g, "\\;");
 }
 
-export function pickupCalendarFilename(block) {
-  return `berkeley-trash-day-${block}-9th-street.ics`;
+function slug(value) {
+  return String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
-export function buildPickupCalendar({ block, blockSchedule, referenceDate = new Date() }) {
+export function pickupCalendarFilename(block, streetName = "9th Street") {
+  return `berkeley-trash-day-${block}-${slug(streetName)}.ics`;
+}
+
+export function buildPickupCalendar({
+  block,
+  streetName = "9th Street",
+  serviceAreaId = block,
+  blockSchedule,
+  referenceDate = new Date()
+}) {
   const streams = consensusCalendarStreams(blockSchedule);
   if (!streams.length) return null;
 
@@ -66,18 +76,18 @@ export function buildPickupCalendar({ block, blockSchedule, referenceDate = new 
     "PRODID:-//Berkeley Trash Day//Community Pickup Calendar//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    `X-WR-CALNAME:${escapeCalendarText(`${block} 9th Street pickup`)}`
+    `X-WR-CALNAME:${escapeCalendarText(`${block} ${streetName} pickup`)}`
   ];
 
   for (const stream of streams) {
     lines.push(
       "BEGIN:VEVENT",
-      `UID:${block}-${stream.id}@berkeleytrashday.netlify.app`,
+      `UID:${serviceAreaId}-${stream.id}@berkeleytrashday.netlify.app`,
       `DTSTAMP:${generatedAt}`,
       `DTSTART;VALUE=DATE:${formatCalendarDate(nextWeekdayDate(stream.day, referenceDate))}`,
       "DURATION:P1D",
       "RRULE:FREQ=WEEKLY;COUNT=26",
-      `SUMMARY:${escapeCalendarText(`${stream.label} pickup - ${block} 9th Street`)}`,
+      `SUMMARY:${escapeCalendarText(`${stream.label} pickup - ${block} ${streetName}`)}`,
       `DESCRIPTION:${escapeCalendarText("Unofficial community reminder. Holiday changes may not appear. Verify changes with Berkeley Zero Waste.")}`,
       "URL:https://berkeleytrashday.netlify.app/",
       "END:VEVENT"

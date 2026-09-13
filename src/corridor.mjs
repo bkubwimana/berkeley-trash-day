@@ -1,9 +1,6 @@
-export const CORRIDOR = [
-  { block: "2100", startStreet: "Addison Street", endStreet: "Allston Way" },
-  { block: "2200", startStreet: "Allston Way", endStreet: "Bancroft Way" },
-  { block: "2300", startStreet: "Bancroft Way", endStreet: "Channing Way" },
-  { block: "2400", startStreet: "Channing Way", endStreet: "Dwight Way" }
-];
+import { SERVICE_AREAS } from "./service-areas.generated.mjs";
+
+export const CORRIDOR = SERVICE_AREAS;
 
 export const STREAMS = [
   { id: "trash", label: "Trash" },
@@ -22,8 +19,8 @@ export const WEEKDAYS = [
 ];
 
 export function buildCorridorView(schedule, selectedBlock, loadFailed = false) {
-  return CORRIDOR.map((segment) => {
-    const blockSchedule = schedule?.blocks?.[segment.block];
+  return CORRIDOR.map((area) => {
+    const blockSchedule = schedule?.blocks?.[area.id];
     const loading = !schedule && !loadFailed;
     const activeStreams = Object.fromEntries(STREAMS.map(({ id }) => [
       id,
@@ -42,12 +39,12 @@ export function buildCorridorView(schedule, selectedBlock, loadFailed = false) {
         : `${totalReports} recent community ${totalReports === 1 ? "report" : "reports"} across ${coveredStreams} of 3 streams`;
 
     return {
-      ...segment,
+      ...area,
       activeStreams,
       totalReports,
       coveredStreams,
       activityText,
-      selected: segment.block === selectedBlock
+      selected: area.id === selectedBlock
     };
   });
 }

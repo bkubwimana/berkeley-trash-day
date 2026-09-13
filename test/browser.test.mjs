@@ -8,13 +8,9 @@ import {
   makeReportPayload
 } from "../src/corridor.mjs";
 
-test("defines the four consecutive blocks between their real cross streets", () => {
-  assert.deepEqual(CORRIDOR, [
-    { block: "2100", startStreet: "Addison Street", endStreet: "Allston Way" },
-    { block: "2200", startStreet: "Allston Way", endStreet: "Bancroft Way" },
-    { block: "2300", startStreet: "Bancroft Way", endStreet: "Channing Way" },
-    { block: "2400", startStreet: "Channing Way", endStreet: "Dwight Way" }
-  ]);
+test("view model uses the complete West Berkeley service-area registry", () => {
+  assert.ok(CORRIDOR.length > 200);
+  assert.deepEqual(CORRIDOR.filter(({ id }) => ["2100", "2200", "2300", "2400"].includes(id)).map(({ id }) => id), ["2100", "2200", "2300", "2400"]);
 });
 
 test("derives report totals and active stream signals from the loaded schedule", () => {
@@ -33,29 +29,33 @@ test("derives report totals and active stream signals from the loaded schedule",
     }
   };
   const view = buildCorridorView(schedule, "2100");
+  const selected = view.find(({ id }) => id === "2100");
+  const next = view.find(({ id }) => id === "2200");
 
-  assert.equal(view[0].totalReports, 3);
-  assert.equal(view[0].coveredStreams, 2);
-  assert.deepEqual(view[0].activeStreams, {
+  assert.equal(selected.totalReports, 3);
+  assert.equal(selected.coveredStreams, 2);
+  assert.deepEqual(selected.activeStreams, {
     trash: true,
     recycling: false,
     compost: true
   });
-  assert.equal(view[0].selected, true);
-  assert.equal(view[1].totalReports, 0);
-  assert.equal(view[1].coveredStreams, 0);
-  assert.equal(view[1].selected, false);
+  assert.equal(selected.selected, true);
+  assert.equal(next.totalReports, 0);
+  assert.equal(next.coveredStreams, 0);
+  assert.equal(next.selected, false);
 });
 
 test("distinguishes unavailable activity from a loaded empty block", () => {
   const unavailable = buildCorridorView(null, "2300", true);
-  assert.equal(unavailable[2].totalReports, null);
-  assert.equal(unavailable[2].coveredStreams, null);
-  assert.equal(unavailable[2].activityText, "Community activity unavailable");
+  const unavailableSelected = unavailable.find(({ id }) => id === "2300");
+  assert.equal(unavailableSelected.totalReports, null);
+  assert.equal(unavailableSelected.coveredStreams, null);
+  assert.equal(unavailableSelected.activityText, "Community activity unavailable");
 
   const empty = buildCorridorView({ blocks: {} }, "2300");
-  assert.equal(empty[2].totalReports, 0);
-  assert.equal(empty[2].activityText, "0 recent community reports across 0 of 3 streams");
+  const emptySelected = empty.find(({ id }) => id === "2300");
+  assert.equal(emptySelected.totalReports, 0);
+  assert.equal(emptySelected.activityText, "0 recent community reports across 0 of 3 streams");
 });
 
 test("formats empty, developing, consensus, and unavailable schedule states", () => {

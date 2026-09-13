@@ -1,4 +1,6 @@
-export const BLOCKS = ["2100", "2200", "2300", "2400"];
+import { SERVICE_AREAS } from "./service-areas.generated.mjs";
+
+export const BLOCKS = SERVICE_AREAS.map(({ id }) => id);
 export const STREAMS = ["trash", "recycling", "compost"];
 export const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 export const REPORT_WINDOW_DAYS = 180;
@@ -50,7 +52,7 @@ export function validateReport(input) {
   const day = typeof input?.day === "string" ? input.day.trim() : "";
 
   if (unsupportedFields.length > 0) errors.push("Submission contains unsupported fields.");
-  if (!BLOCKS.includes(block)) errors.push("Choose a supported 9th Street block.");
+  if (!BLOCKS.includes(block)) errors.push("Choose a supported West Berkeley street range.");
   if (!streamSelection.valid) errors.push("Choose one or more collection types.");
   if (!DAYS.includes(day)) errors.push("Choose a valid collection day.");
   if (input?.website) errors.push("Submission rejected.");
@@ -76,18 +78,24 @@ export function aggregateReports(reports, now = new Date()) {
     return valid ? [{ ...report, streams }] : [];
   });
 
+  const countsByBlock = new Map();
+  for (const report of recent) {
+    const blockCounts = countsByBlock.get(report.block) ?? new Map();
+    for (const stream of report.streams) {
+      const counts = blockCounts.get(stream) ?? new Map(DAYS.map((day) => [day, 0]));
+      counts.set(report.day, counts.get(report.day) + 1);
+      blockCounts.set(stream, counts);
+    }
+    countsByBlock.set(report.block, blockCounts);
+  }
+
   return Object.fromEntries(BLOCKS.map((block) => {
     const blockSchedule = Object.fromEntries(STREAMS.map((stream) => {
-      const matching = recent.filter((report) => report.block === block && report.streams.includes(stream));
-      const counts = new Map(DAYS.map((day) => [day, 0]));
-
-      for (const report of matching) {
-        counts.set(report.day, counts.get(report.day) + 1);
-      }
+      const counts = countsByBlock.get(block)?.get(stream) ?? new Map(DAYS.map((day) => [day, 0]));
+      const total = [...counts.values()].reduce((sum, count) => sum + count, 0);
 
       const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1] || DAYS.indexOf(a[0]) - DAYS.indexOf(b[0]));
       const [day, winningReports] = ranked[0];
-      const total = matching.length;
       const agreementPercent = total === 0 ? 0 : Math.round((winningReports / total) * 100);
       const tied = total > 0 && ranked[1][1] === winningReports;
       const consensus = total >= MINIMUM_REPORTS

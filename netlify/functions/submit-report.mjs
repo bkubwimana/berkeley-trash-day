@@ -1,5 +1,6 @@
 import { getStore } from "@netlify/blobs";
 import { validateReport } from "../../src/reporting.mjs";
+import { getServiceArea } from "../../src/service-areas.generated.mjs";
 
 const MAX_BODY_BYTES = 2_000;
 
@@ -33,10 +34,12 @@ export function createSubmitReportHandler({
       return Response.json({ error: validation.errors[0] }, { status: 400 });
     }
 
+    const area = getServiceArea(validation.value.block);
     const report = {
       ...validation.value,
       reportedAt: now().toISOString(),
-      street: "9th Street",
+      street: area.streetName,
+      addressRange: area.addressRange,
       city: "Berkeley, CA",
       source: "community"
     };

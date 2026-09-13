@@ -14,6 +14,7 @@ import {
   formatSummary,
   makeReportPayload
 } from "./corridor.mjs";
+import { SERVICE_AREA_METADATA } from "./service-areas.generated.mjs";
 const WestBerkeleyMap = lazy(() => import("./WestBerkeleyMap.jsx").then((module) => ({ default: module.WestBerkeleyMap })));
 function LocationPinIcon({ className = "" }) {
   return (
@@ -43,8 +44,8 @@ function BlockSummary({ segment, loadFailed }) {
       <div>
         <span>Selected range</span>
         <strong className="selected-range-value">
-          <span id="selected-block">{segment?.block ?? "2100"}</span>
-          <span className="selected-street"><LocationPinIcon className="selected-range-pin" />9th Street</span>
+          <span id="selected-block">{segment?.addressRange ?? "2100"}</span>
+          <span className="selected-street"><LocationPinIcon className="selected-range-pin" />{segment?.streetName ?? "9th Street"}</span>
         </strong>
       </div>
       <div>
@@ -61,7 +62,7 @@ function BlockSummary({ segment, loadFailed }) {
   );
 }
 
-function WeeklyCalendar({ block, blockSchedule, loadFailed }) {
+function WeeklyCalendar({ area, blockSchedule, loadFailed }) {
   const calendar = buildWeeklyCalendar(blockSchedule, loadFailed);
   const exportableStreams = consensusCalendarStreams(blockSchedule);
   const canExport = !loadFailed && exportableStreams.length > 0;
@@ -72,13 +73,18 @@ function WeeklyCalendar({ block, blockSchedule, loadFailed }) {
       : "Available after community consensus.";
 
   function downloadCalendar() {
-    const content = buildPickupCalendar({ block, blockSchedule });
+    const content = buildPickupCalendar({
+      block: area.addressRange,
+      streetName: area.streetName,
+      serviceAreaId: area.id,
+      blockSchedule
+    });
     if (!content) return;
 
     const url = URL.createObjectURL(new Blob([content], { type: "text/calendar;charset=utf-8" }));
     const link = document.createElement("a");
     link.href = url;
-    link.download = pickupCalendarFilename(block);
+    link.download = pickupCalendarFilename(area.addressRange, area.streetName);
     document.body.append(link);
     link.click();
     link.remove();
@@ -90,7 +96,7 @@ function WeeklyCalendar({ block, blockSchedule, loadFailed }) {
       <div className="calendar-heading">
         <div>
           <p className="kicker">Community week</p>
-          <h3 id="calendar-title">Pickup calendar · {block}</h3>
+          <h3 id="calendar-title">Pickup calendar · {area.addressRange} {area.streetName}</h3>
         </div>
         <div className="calendar-heading-actions">
           <p>Typical week from recent reports. Holiday changes may not appear.</p>
@@ -203,9 +209,11 @@ function ReportForm({ block, onBlockChange, onRecorded }) {
   return (
     <form id="report-form" className="report-form" ref={formRef} onSubmit={submitReport}>
       <div className="form-row">
-        <label htmlFor="report-block">Block</label>
+        <label htmlFor="report-block">Street range</label>
         <select id="report-block" name="block" required value={block} onChange={(event) => onBlockChange(event.target.value)}>
-          {CORRIDOR.map((segment) => <option value={segment.block} key={segment.block}>{segment.block} block</option>)}
+          {CORRIDOR.map((area) => (
+            <option value={area.id} key={area.id}>{area.addressRange} {area.streetName}</option>
+          ))}
         </select>
       </div>
       <fieldset aria-describedby="collection-types-hint">
@@ -235,7 +243,7 @@ function ReportForm({ block, onBlockChange, onRecorded }) {
       </div>
       <label className="confirmation">
         <input name="confirmed" type="checkbox" required />
-        <span>I observed or confirmed this schedule for the selected block.</span>
+        <span>I observed or confirmed this schedule for the selected street range.</span>
       </label>
       <button id="submit-button" className="primary-button" type="submit" disabled={submitting}>
         {submitting ? "Submitting…" : "Submit community report"}
@@ -293,7 +301,7 @@ export default function App() {
               <span className="pill pill-muted">Unofficial</span>
             </div>
             <h1 id="page-title">Find your block.<br />Know your day.</h1>
-            <p className="lede">A neighbor-powered guide to trash, recycling, and compost pickup days, beginning on 9th Street and built to grow across West Berkeley.</p>
+            <p className="lede">A neighbor-powered guide to trash, recycling, and compost pickup days across West Berkeley.</p>
           </div>
           <aside className="official-note">
             <span className="note-icon" aria-hidden="true">i</span>
@@ -312,13 +320,13 @@ export default function App() {
               <p className="kicker">West Berkeley · California</p>
               <h2 id="tracker-title">Find your street</h2>
             </div>
-            <span className="updated">4 ranges live</span>
+            <span className="updated">{SERVICE_AREA_METADATA.areaCount} ranges · {SERVICE_AREA_METADATA.streetCount} streets</span>
           </div>
           <Suspense fallback={<p className="map-module-loading" role="status">Preparing West Berkeley map…</p>}>
             <WestBerkeleyMap selectedBlock={block} onSelect={setBlock} />
           </Suspense>
           <BlockSummary segment={selectedSegment} loadFailed={loadFailed} />
-          <WeeklyCalendar block={block} blockSchedule={schedule?.blocks?.[block]} loadFailed={loadFailed} />
+          <WeeklyCalendar area={selectedSegment} blockSchedule={schedule?.blocks?.[block]} loadFailed={loadFailed} />
           <div className="schedule-heading">
             <strong>Pickup details</strong>
             <span className="status-key"><i className="signal signal-consensus" />Consensus <i className="signal signal-developing" />Developing</span>
@@ -334,7 +342,7 @@ export default function App() {
           <div className="report-copy">
             <p className="kicker">Help a neighbor</p>
             <h2 id="report-title">What day are carts collected?</h2>
-            <p>Share what you have observed for this block. Three agreeing reports are needed before a day is shown as community consensus.</p>
+            <p>Share what you have observed for this street range. Three recent reports and two-thirds agreement are needed for community consensus.</p>
             <ul className="privacy-points">
               <li>No account required</li><li>No exact address requested</li><li>Reports expire after 180 days</li>
             </ul>
@@ -346,7 +354,7 @@ export default function App() {
           <p className="kicker">How confidence works</p>
           <h2 id="method-title">Transparent counts.</h2>
           <div className="method-grid">
-            <article><span>01</span><h3>Neighbors report</h3><p>People submit only a block, selected collection types, and observed day.</p></article>
+            <article><span>01</span><h3>Neighbors report</h3><p>People submit only a street range, selected collection types, and observed day.</p></article>
             <article><span>02</span><h3>Reports agree</h3><p>We show the leading day and exactly how many recent reports support it.</p></article>
             <article><span>03</span><h3>Consensus appears</h3><p>At least three reports and two-thirds agreement are required.</p></article>
           </div>
@@ -359,7 +367,7 @@ export default function App() {
           <p>An open-source community project. Not affiliated with the City of Berkeley.</p>
           <p className="map-source">
             Basemap: <a href="https://openfreemap.org/">OpenFreeMap</a> · <a href="https://openmaptiles.org/">© OpenMapTiles</a> · data <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>.<br />
-            Expansion reference: <a href="https://berkeleyca.gov/city-services/community-gis-portal">City of Berkeley Community GIS Portal</a>.
+            Reporting ranges: <a href="https://gis.cityofberkeley.info/arcgis/rest/services/Public/Portal_CommSvcs/MapServer/1">City of Berkeley Block Numbers</a> · <a href="https://berkeleyca.gov/city-services/community-gis-portal">Community GIS Portal</a>. Addressable Berkeley centerlines on or west of San Pablo Avenue.
           </p>
         </div>
         <div className="footer-links">

@@ -3,8 +3,8 @@
 Find your block. Know your day.
 
 Berkeley Trash Day is a privacy-first, community-reported guide to trash, recycling,
-and compost collection days. The initial beta covers the 2100–2400 blocks of 9th
-Street in Berkeley, California.
+and compost collection days across West Berkeley, California. The current registry
+contains 277 addressable ranges across 48 streets.
 
 It is an independent community project and is not affiliated with the City of
 Berkeley. Community data should not be treated as an official service notice.
@@ -60,11 +60,13 @@ npm run check
 - Netlify Blobs for small community-report records
 - Function-level IP rate limiting and a form honeypot for basic abuse resistance
 
-The map can browse West Berkeley, while only the four registry-backed Ninth Street
-ranges are highlighted and open for reports. Their line geometry follows public
-OpenStreetMap street centerlines. Future range expansion should be reviewed against the
-[City of Berkeley Community GIS Portal](https://berkeleyca.gov/city-services/community-gis-portal).
-Visible basemap streets do not imply schedule coverage.
+Reporting coverage is generated from the City of Berkeley's public
+[Block Numbers centerline layer](https://gis.cityofberkeley.info/arcgis/rest/services/Public/Portal_CommSvcs/MapServer/1).
+For this release, West Berkeley means addressable Berkeley centerlines on or west of San
+Pablo Avenue. Highways, ramps, pedestrian facilities, overpasses, and records without
+usable address numbers are excluded. The source's latest update among included records is
+December 26, 2019, so the map is a reviewed reporting registry rather than a claim about
+current City collection service. OpenFreeMap and OpenStreetMap provide the visual basemap.
 
 Range search runs locally in the browser and sends no search text to a geocoder. The map
 loads style and tile resources from OpenFreeMap, whose servers receive ordinary web
@@ -81,7 +83,7 @@ or personal data.
 
 ## API
 
-`GET /api/schedule` returns recent block-level aggregates and the consensus method.
+`GET /api/schedule` returns recent range-level aggregates and the consensus method.
 
 `POST /api/reports` accepts JSON shaped like:
 
@@ -97,7 +99,23 @@ Every selected stream receives one observation for the shared day. If streams ar
 collected on different days, send a separate report for each same-day group.
 
 Valid blocks and collection streams are intentionally limited in
-[`src/reporting.mjs`](src/reporting.mjs).
+the generated [`src/service-areas.generated.mjs`](src/service-areas.generated.mjs) registry
+and [`src/reporting.mjs`](src/reporting.mjs).
+
+## Refreshing the range registry
+
+The production build uses checked-in data and does not call the City GIS at runtime. To
+refresh the registry from the paginated public source:
+
+```bash
+npm run generate:service-areas
+npm test
+npm run check
+```
+
+The generator preserves the four original Ninth Street IDs, groups duplicate centerline
+fragments into one resident-facing range, derives nearby cross streets, and refuses to
+write an unexpectedly small result.
 
 ## Official information
 

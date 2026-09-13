@@ -25,13 +25,17 @@ Thanks for helping make collection-day information easier to find.
 Please use fictional reports only in local development. Do not seed the production
 database with test schedules.
 
-## Adding a service range
+## Updating service ranges
 
-Map visibility is not report coverage. New reportable ranges require all of the following:
+Map visibility is not report coverage. West Berkeley ranges are generated from the City
+of Berkeley public Block Numbers layer:
 
-1. A reviewed street segment and address range from a documented public source such as
-   the City of Berkeley Streets Network.
-2. A fixed, non-identifying service-area ID added to both the frontend registry and API
-   allowlist.
-3. Search, geometry, validation, empty-state, and mobile tests.
-4. A Spec Kit feature review before production data collection begins.
+1. Run `npm run generate:service-areas`.
+2. Review changes to `src/service-areas.generated.mjs` and
+   `src/service-area-geometries.generated.mjs`, especially count, provenance,
+   exclusions, existing IDs, geometry, and boundary cases near San Pablo Avenue.
+3. Run search, geometry, validation, empty-state, API, and mobile tests.
+4. Use a Spec Kit feature review before changing the coverage definition or collecting
+   production data for a new neighborhood.
+
+Do not hand-edit the generated registry or add a map-only range to the API.

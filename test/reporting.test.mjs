@@ -11,8 +11,9 @@ import {
 const now = new Date("2026-09-07T12:00:00.000Z");
 const reportedAt = "2026-09-01T12:00:00.000Z";
 
-test("exposes only the four beta blocks and fixed civic enumerations", () => {
-  assert.deepEqual(BLOCKS, ["2100", "2200", "2300", "2400"]);
+test("exposes the West Berkeley registry and fixed civic enumerations", () => {
+  assert.ok(BLOCKS.length > 200);
+  assert.ok(["2100", "2200", "2300", "2400"].every((id) => BLOCKS.includes(id)));
   assert.deepEqual(STREAMS, ["trash", "recycling", "compost"]);
   assert.deepEqual(DAYS, [
     "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
@@ -60,7 +61,7 @@ test("rejects arrays, missing values, and extra fields", () => {
 
 test("returns a complete empty schedule without suggesting a weekday", () => {
   const blocks = aggregateReports([], now);
-  assert.deepEqual(Object.keys(blocks), BLOCKS);
+  assert.deepEqual(new Set(Object.keys(blocks)), new Set(BLOCKS));
   assert.deepEqual(blocks["2100"].trash, {
     day: null,
     winningReports: 0,
@@ -81,6 +82,16 @@ test("shows one observation as developing", () => {
     agreementPercent: 100,
     status: "Developing"
   });
+});
+
+test("accepts and aggregates a generated non-Ninth Street range", async () => {
+  const { SERVICE_AREAS } = await import("../src/map-data.mjs");
+  const area = SERVICE_AREAS.find(({ streetName }) => streetName === "Cedar Street");
+  assert.ok(area);
+  const validation = validateReport({ block: area.id, streams: ["compost"], day: "Thursday" });
+  assert.equal(validation.ok, true);
+  const blocks = aggregateReports([{ ...validation.value, reportedAt }], now);
+  assert.equal(blocks[area.id].compost.day, "Thursday");
 });
 
 test("counts one multi-stream record on the same day for every selected stream", () => {

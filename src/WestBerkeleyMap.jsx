@@ -11,6 +11,7 @@ import {
 } from "./map-data.mjs";
 
 const STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
+const RESULT_PAGE_SIZE = 12;
 maplibregl.setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
 
 function RangeButton({ area, selected, onSelect }) {
@@ -23,7 +24,11 @@ function RangeButton({ area, selected, onSelect }) {
     >
       <span className="range-number">{area.addressRange}</span>
       <span className="range-street">{area.streetName}</span>
-      <span className="range-bounds">{area.startStreet} → {area.endStreet}</span>
+      <span className="range-bounds">
+        {area.startStreet && area.endStreet
+          ? `${area.startStreet} → ${area.endStreet}`
+          : `Addresses ${area.addressMin}–${area.addressMax}`}
+      </span>
     </button>
   );
 }
@@ -34,10 +39,18 @@ export function WestBerkeleyMap({ selectedBlock, onSelect }) {
   const onSelectRef = useRef(onSelect);
   const previousSelectionRef = useRef(selectedBlock);
   const [query, setQuery] = useState("");
+  const [resultLimit, setResultLimit] = useState(RESULT_PAGE_SIZE);
   const [mapStatus, setMapStatus] = useState("loading");
   const results = useMemo(() => searchServiceAreas(query), [query]);
+  const orderedResults = useMemo(() => {
+    if (query) return results;
+    const selected = results.find(({ id }) => id === selectedBlock);
+    return selected ? [selected, ...results.filter(({ id }) => id !== selectedBlock)] : results;
+  }, [query, results, selectedBlock]);
+  const visibleResults = orderedResults.slice(0, resultLimit);
 
   useEffect(() => { onSelectRef.current = onSelect; }, [onSelect]);
+  useEffect(() => { setResultLimit(RESULT_PAGE_SIZE); }, [query]);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return undefined;
@@ -79,8 +92,12 @@ export function WestBerkeleyMap({ selectedBlock, onSelect }) {
           source: "service-areas",
           paint: {
             "line-color": "#fffefa",
-            "line-width": ["case", ["get", "selected"], 15, 11],
-            "line-opacity": 0.95
+            "line-width": ["case", ["get", "selected"], 13, 6],
+            "line-opacity": ["case", ["get", "selected"], 0.95, 0.66]
+          },
+          layout: {
+            "line-cap": "round",
+            "line-join": "round"
           }
         });
         map.addLayer({
@@ -89,16 +106,21 @@ export function WestBerkeleyMap({ selectedBlock, onSelect }) {
           source: "service-areas",
           paint: {
             "line-color": ["case", ["get", "selected"], "#df5b46", "#2f713b"],
-            "line-width": ["case", ["get", "selected"], 9, 6],
-            "line-opacity": 0.92
+            "line-width": ["case", ["get", "selected"], 8, 3],
+            "line-opacity": ["case", ["get", "selected"], 0.96, 0.72]
+          },
+          layout: {
+            "line-cap": "round",
+            "line-join": "round"
           }
         });
         map.addLayer({
           id: "service-area-dots",
           type: "circle",
           source: "service-area-labels",
+          minzoom: 14.2,
           paint: {
-            "circle-radius": ["case", ["get", "selected"], 19, 16],
+            "circle-radius": ["case", ["get", "selected"], 16, 11],
             "circle-color": ["case", ["get", "selected"], "#df5b46", "#2f713b"],
             "circle-stroke-color": "#fffefa",
             "circle-stroke-width": 3
@@ -108,6 +130,7 @@ export function WestBerkeleyMap({ selectedBlock, onSelect }) {
           id: "service-area-label-text",
           type: "symbol",
           source: "service-area-labels",
+          minzoom: 14.2,
           layout: {
             "text-field": ["get", "addressRange"],
             "text-size": 11,
@@ -151,7 +174,7 @@ export function WestBerkeleyMap({ selectedBlock, onSelect }) {
     if (area && previousSelectionRef.current !== selectedBlock) {
       map.fitBounds(boundsForServiceArea(area), {
         padding: { top: 80, right: 90, bottom: 80, left: 90 },
-        maxZoom: 16.2,
+        maxZoom: 16.8,
         duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 650
       });
     }
@@ -184,12 +207,12 @@ export function WestBerkeleyMap({ selectedBlock, onSelect }) {
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Try “2100 9th” or “Allston”"
+            placeholder="Try “2127 9th” or “Cedar”"
             autoComplete="off"
           />
           <button type="submit">Find</button>
         </div>
-        <p className="map-search-note">Searches the community ranges currently open for reports.</p>
+        <p className="map-search-note">Search stays in your browser.</p>
       </form>
 
       <div className={`map-stage map-${mapStatus}`}>
@@ -210,15 +233,26 @@ export function WestBerkeleyMap({ selectedBlock, onSelect }) {
 
       <div className="map-search-results" aria-live="polite">
         <div className="range-list-heading">
-          <strong>{query ? `${results.length} ${results.length === 1 ? "match" : "matches"}` : "Live community ranges"}</strong>
-          <span>More of West Berkeley can be added from reviewed street data.</span>
+          <strong>{query ? `${results.length} ${results.length === 1 ? "match" : "matches"}` : "West Berkeley ranges"}</strong>
+          <span>City centerlines on or west of San Pablo Avenue.</span>
         </div>
         {results.length ? (
-          <div className="range-list">
-            {results.map((area) => (
-              <RangeButton area={area} selected={area.id === selectedBlock} onSelect={onSelect} key={area.id} />
-            ))}
-          </div>
+          <>
+            <div className="range-list">
+              {visibleResults.map((area) => (
+                <RangeButton area={area} selected={area.id === selectedBlock} onSelect={onSelect} key={area.id} />
+              ))}
+            </div>
+            {visibleResults.length < orderedResults.length && (
+              <button
+                className="range-show-more"
+                type="button"
+                onClick={() => setResultLimit((limit) => limit + RESULT_PAGE_SIZE)}
+              >
+                Show more <span>{orderedResults.length - visibleResults.length} remaining</span>
+              </button>
+            )}
+          </>
         ) : (
           <p className="empty-search">No live community range matches that search yet.</p>
         )}

@@ -5,6 +5,7 @@ import {
   createSubmitReportHandler,
   config as submitConfig
 } from "../netlify/functions/submit-report.mjs";
+import { SERVICE_AREAS } from "../src/map-data.mjs";
 
 function createMemoryStore(initial = {}) {
   const records = new Map(Object.entries(initial));
@@ -80,9 +81,28 @@ test("POST report stores only the constrained application record", async () => {
     day: "Tuesday",
     reportedAt: "2026-09-07T12:00:00.000Z",
     street: "9th Street",
+    addressRange: "2100",
     city: "Berkeley, CA",
     source: "community"
   });
+});
+
+test("POST report stores the public label for a non-Ninth Street range", async () => {
+  const area = SERVICE_AREAS.find(({ streetName }) => streetName === "Cedar Street");
+  const memory = createMemoryStore();
+  const handler = createSubmitReportHandler({
+    getStoreImpl: memory.getStoreImpl,
+    now: () => new Date("2026-09-07T12:00:00.000Z"),
+    uuid: () => "cedar-report"
+  });
+  const response = await handler(new Request("https://example.test/api/reports", {
+    method: "POST",
+    body: JSON.stringify({ block: area.id, streams: ["compost"], day: "Thursday" })
+  }));
+  assert.equal(response.status, 201);
+  const stored = JSON.parse(memory.records.get(`reports/${area.id}/cedar-report`));
+  assert.equal(stored.street, "Cedar Street");
+  assert.equal(stored.addressRange, area.addressRange);
 });
 
 test("report endpoint rejects malformed, unsupported, honeypot, and oversized input", async () => {

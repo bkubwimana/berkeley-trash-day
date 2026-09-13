@@ -11,7 +11,7 @@ test("tracker labels provenance and provides official Berkeley information", asy
   assert.match(app, /Not affiliated with the City of Berkeley/);
   assert.match(app, /\(510\) 981-7270/);
   assert.match(app, /berkeleyca\.gov\/city-services\/trash-recycling\/residential-waste-services/);
-  assert.match(app, /Three agreeing reports/);
+  assert.match(app, /Three recent reports and two-thirds agreement/);
   assert.match(app, /Reports expire after 180 days/);
 });
 
@@ -37,23 +37,23 @@ test("privacy page states collected and excluded data", async () => {
 
 test("map uses real cross streets in order with complete data attribution", async () => {
   const html = await readFile(new URL("src/App.jsx", root), "utf8");
-  const model = await readFile(new URL("src/map-data.mjs", root), "utf8");
+  const model = await readFile(new URL("src/service-areas.generated.mjs", root), "utf8");
   const streets = ["Addison Street", "Allston Way", "Bancroft Way", "Channing Way", "Dwight Way"];
-  let previousIndex = -1;
 
   for (const street of streets) {
-    const currentIndex = model.indexOf(street);
-    assert.ok(currentIndex > previousIndex, `${street} should appear in corridor order`);
-    previousIndex = currentIndex;
+    assert.match(model, new RegExp(street));
   }
 
   assert.match(html, /OpenFreeMap/);
   assert.match(html, /OpenMapTiles/);
   assert.match(html, /© OpenStreetMap contributors/);
   assert.ok(html.indexOf("© OpenStreetMap contributors") > html.indexOf("<footer>"));
-  assert.match(html, /City of Berkeley Community GIS Portal/);
+  assert.match(html, /Community GIS Portal/);
+  assert.match(model, /City of Berkeley Block Numbers/);
   assert.doesNotMatch(html, /hqnk-qfhq/);
   assert.match(html, /WestBerkeleyMap/);
+  assert.doesNotMatch(html, />4 ranges live</);
+  assert.match(html, /SERVICE_AREA_METADATA/);
   assert.match(html, /selected-report-total/);
   assert.match(html, /selected-stream-coverage/);
 });
@@ -64,6 +64,8 @@ test("map has an accessible non-canvas range selector and honest coverage copy",
   assert.match(map, /No live community range matches that search yet/);
   assert.match(map, /aria-pressed/);
   assert.match(map, /Map unavailable/);
+  assert.match(map, /RESULT_PAGE_SIZE = 12/);
+  assert.match(map, /Show more/);
   assert.doesNotMatch(map, /verified|confidence|\d+%/i);
 });
 
