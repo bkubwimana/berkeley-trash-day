@@ -9,4 +9,4 @@
 - [x] T007 Add bounded progressive results and neighborhood-scale map styling.
 - [x] T008 Update public source, privacy, scope, and contributor documentation.
 - [x] T009 Run tests, build, and responsive browser verification.
-- [ ] T010 Push and deploy, then verify the live map, API, and representative searches.
+- [x] T010 Push and deploy, then verify the live map, API, and representative searches.
