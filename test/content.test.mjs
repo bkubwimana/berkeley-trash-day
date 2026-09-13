@@ -117,5 +117,7 @@ test("light theme, generated logo, and weekly calendar are present", async () =>
   assert.match(app, /function WeeklyCalendar/);
   assert.match(app, /Community week/);
   assert.match(app, /Holiday changes may not appear/);
+  assert.match(app, /Add to calendar/);
+  assert.match(app, /Available after community consensus/);
   assert.doesNotMatch(css, /body\s*\{[^}]*min-width:\s*320px/s);
 });

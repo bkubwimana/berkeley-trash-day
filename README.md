@@ -72,7 +72,12 @@ connection data. No analytics SDK, account system, geolocation permission, or
 client-side tracking is included.
 
 The selected range also has a seven-day community calendar. It places collection streams
-only on weekdays supported by recent reports and keeps holiday limitations visible.
+only on weekdays supported by recent reports and keeps holiday limitations visible. Once
+a stream reaches community consensus, “Add to calendar” downloads an `.ics` file that
+works with Apple Calendar and Outlook and can be imported into Google Calendar. It creates
+26 weekly all-day reminders, omits developing observations, and does not account for
+holiday changes. The file is generated locally in the browser without calendar permissions
+or personal data.
 
 ## API
 

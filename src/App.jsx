@@ -1,6 +1,11 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { CollectionIcon } from "./CollectionIcon.jsx";
 import {
+  buildPickupCalendar,
+  consensusCalendarStreams,
+  pickupCalendarFilename
+} from "./calendar.mjs";
+import {
   CORRIDOR,
   STREAMS,
   WEEKDAYS,
@@ -58,6 +63,27 @@ function BlockSummary({ segment, loadFailed }) {
 
 function WeeklyCalendar({ block, blockSchedule, loadFailed }) {
   const calendar = buildWeeklyCalendar(blockSchedule, loadFailed);
+  const exportableStreams = consensusCalendarStreams(blockSchedule);
+  const canExport = !loadFailed && exportableStreams.length > 0;
+  const exportNote = loadFailed
+    ? "Calendar export unavailable while community data is unavailable."
+    : canExport
+      ? `Downloads 26 weekly reminders for ${exportableStreams.length === 1 ? "the consensus pickup" : `${exportableStreams.length} consensus pickups`}.`
+      : "Available after community consensus.";
+
+  function downloadCalendar() {
+    const content = buildPickupCalendar({ block, blockSchedule });
+    if (!content) return;
+
+    const url = URL.createObjectURL(new Blob([content], { type: "text/calendar;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = pickupCalendarFilename(block);
+    document.body.append(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
 
   return (
     <section className="calendar-section" aria-labelledby="calendar-title">
@@ -66,7 +92,19 @@ function WeeklyCalendar({ block, blockSchedule, loadFailed }) {
           <p className="kicker">Community week</p>
           <h3 id="calendar-title">Pickup calendar · {block}</h3>
         </div>
-        <p>Typical week from recent reports. Holiday changes may not appear.</p>
+        <div className="calendar-heading-actions">
+          <p>Typical week from recent reports. Holiday changes may not appear.</p>
+          <button
+            className="calendar-export-button"
+            type="button"
+            disabled={!canExport}
+            aria-describedby="calendar-export-note"
+            onClick={downloadCalendar}
+          >
+            <span aria-hidden="true">↓</span> Add to calendar <small>.ics</small>
+          </button>
+          <span id="calendar-export-note" className="calendar-export-note">{exportNote}</span>
+        </div>
       </div>
       <div className="calendar-grid">
         {calendar.days.map(({ day, streams }) => (
