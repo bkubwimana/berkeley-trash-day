@@ -7,4 +7,4 @@
 - [x] T005 Add responsive styles and concise availability copy.
 - [x] T006 Document compatibility, recurrence, privacy, and holiday limitations.
 - [x] T007 Run tests, production build, and browser-level visual verification.
-- [ ] T008 Push and deploy the verified production build.
+- [x] T008 Push and deploy the verified production build.
