@@ -25,5 +25,5 @@
 
 - [x] T012 [US1] Expand Function tests for headers and rejected request classes.
 - [x] T013 Run tests, build, syntax checks, dependency audit, and bundle scan.
-- [ ] T014 Verify the deployed site and API.
-- [ ] T015 Commit and push the verified release.
+- [x] T014 Verify the deployed site and API.
+- [x] T015 Commit and push the verified release.
