@@ -16,6 +16,10 @@ export function createScheduleHandler({ getStoreImpl = getStore, now = () => new
       );
     }
 
+    if (new URL(request.url).search) {
+      return jsonResponse({ error: "Query parameters are not supported." }, { status: 400 });
+    }
+
     try {
       const store = getStoreImpl({ name: "collection-reports", consistency: "strong" });
       const { blobs } = await store.list({ prefix: "reports/" });

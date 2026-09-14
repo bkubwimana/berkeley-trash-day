@@ -82,6 +82,21 @@ test("schedule endpoint rejects unsupported methods", async () => {
   assert.equal(response.headers.get("allow"), "GET");
 });
 
+test("schedule endpoint rejects cache-bypass query parameters before storage access", async () => {
+  let storageAccessed = false;
+  const handler = createScheduleHandler({
+    getStoreImpl: () => {
+      storageAccessed = true;
+      return {};
+    }
+  });
+  const response = await handler(new Request("https://example.test/api/schedule?nonce=random"));
+
+  assert.equal(response.status, 400);
+  assert.equal(storageAccessed, false);
+  assertApiSecurityHeaders(response);
+});
+
 test("POST report stores only the constrained application record", async () => {
   const memory = createMemoryStore();
   const handler = createSubmitReportHandler({

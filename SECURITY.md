@@ -21,7 +21,7 @@ Netlify terminates TLS, serves static files, runs the two public Functions, appl
 | Cross-site browser submission | Same-origin `Origin` validation and Fetch Metadata rejection | Non-browser clients can omit or forge these headers |
 | Automated report spam | Honeypot, confirmation step, three-per-ten-minute IP/domain Function rate limit | Distributed clients and patient attackers can still submit false reports |
 | False community consensus | Raw counts, minimum of three reports, two-thirds agreement, 180-day expiry, no official label | Anonymous reports do not prove distinct people or truthful observations |
-| Traffic or cost amplification | Netlify DDoS controls, read and write rate limits, short durable caching on the aggregate read endpoint | A distributed attack or unbounded report growth can still increase Function and Blob work |
+| Traffic or cost amplification | Netlify DDoS controls, read and write rate limits, short durable caching, and rejection of query-string cache bypasses before Blob access | A distributed attack or unbounded report growth can still increase Function and Blob work |
 | Secret or supply-chain compromise | No browser secrets, locked dependency versions, dependency audit, public review, Netlify environment boundary | Maintainer, GitHub, npm, or Netlify account compromise remains possible |
 | Domain takeover or interception | GoDaddy transfer lock, Netlify-managed DNS, automatic TLS, HSTS | Registrar, DNS, or Netlify account compromise remains possible |
 | Privacy leakage through telemetry | No client analytics SDK, no persistent visitor ID, no request-body logging by application code | Hosting and map providers process ordinary connection data |

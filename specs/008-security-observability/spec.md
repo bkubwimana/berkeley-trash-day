@@ -73,6 +73,7 @@ As the maintainer, I have a documented path for measuring a small set of meaning
 - **FR-010**: Search discovery files MUST identify the canonical HTTPS origin and sitemap.
 - **FR-011**: Application logs MUST NOT deliberately log report request bodies, IP addresses, or user agents.
 - **FR-012**: Security claims MUST distinguish implemented controls from platform controls and acknowledged limitations.
+- **FR-013**: The aggregate read endpoint MUST reject query-string cache bypass attempts before accessing report storage.
 
 ### Key Entities
 
