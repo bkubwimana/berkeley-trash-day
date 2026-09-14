@@ -1,0 +1,5 @@
+Contact: https://github.com/bkubwimana/berkeley-trash-day/security/advisories/new
+Expires: 2027-09-13T23:59:59Z
+Preferred-Languages: en
+Canonical: https://berkeleytrashday.org/.well-known/security.txt
+Policy: https://github.com/bkubwimana/berkeley-trash-day/blob/main/SECURITY.md

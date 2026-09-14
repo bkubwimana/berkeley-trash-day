@@ -1,0 +1,46 @@
+name: Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=moderate
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build and check syntax
+        run: npm run check
+
+      - name: Assert the browser bundle has no analytics tag
+        run: |
+          if grep -R -E -i 'googletagmanager|google-analytics|gtag\(|connect\.facebook|plausible|umami' dist; then
+            echo 'Unexpected analytics or advertising code found in dist.' >&2
+            exit 1
+          fi

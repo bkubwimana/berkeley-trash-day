@@ -5,11 +5,12 @@ import {
   REPORT_WINDOW_DAYS,
   aggregateReports
 } from "../../src/reporting.mjs";
+import { jsonResponse } from "./_shared/http-security.mjs";
 
 export function createScheduleHandler({ getStoreImpl = getStore, now = () => new Date() } = {}) {
   return async function scheduleHandler(request) {
     if (request.method !== "GET") {
-      return Response.json(
+      return jsonResponse(
         { error: "Method not allowed" },
         { status: 405, headers: { Allow: "GET" } }
       );
@@ -31,7 +32,7 @@ export function createScheduleHandler({ getStoreImpl = getStore, now = () => new
       });
 
       const generatedAt = now();
-      return Response.json({
+      return jsonResponse({
         generatedAt: generatedAt.toISOString(),
         blocks: aggregateReports(reports, generatedAt),
         methodology: {
@@ -39,10 +40,14 @@ export function createScheduleHandler({ getStoreImpl = getStore, now = () => new
           minimumReports: MINIMUM_REPORTS,
           agreementThreshold: AGREEMENT_THRESHOLD
         }
+      }, {
+        headers: {
+          "Netlify-CDN-Cache-Control": "public, durable, s-maxage=15, stale-while-revalidate=30"
+        }
       });
     } catch (error) {
       console.error("schedule error", error);
-      return Response.json(
+      return jsonResponse(
         { error: "Schedule data is temporarily unavailable." },
         { status: 500 }
       );

@@ -28,6 +28,24 @@ function createMemoryStore(initial = {}) {
   return { records, getStoreImpl: () => store };
 }
 
+function jsonRequest(url, body, headers = {}) {
+  return new Request(url, {
+    method: "POST",
+    headers: { "content-type": "application/json", ...headers },
+    body: JSON.stringify(body)
+  });
+}
+
+function assertApiSecurityHeaders(response) {
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  assert.match(response.headers.get("content-security-policy"), /default-src 'none'/);
+  assert.equal(response.headers.get("cross-origin-resource-policy"), "same-origin");
+  assert.equal(response.headers.get("permissions-policy"), "camera=(), microphone=(), geolocation=()");
+  assert.equal(response.headers.get("referrer-policy"), "no-referrer");
+  assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+  assert.equal(response.headers.get("x-frame-options"), "DENY");
+}
+
 test("GET schedule matches the documented aggregate contract", async () => {
   const reportedAt = "2026-09-01T12:00:00.000Z";
   const { getStoreImpl } = createMemoryStore({
@@ -50,6 +68,11 @@ test("GET schedule matches the documented aggregate contract", async () => {
     minimumReports: 3,
     agreementThreshold: 2 / 3
   });
+  assertApiSecurityHeaders(response);
+  assert.equal(
+    response.headers.get("netlify-cdn-cache-control"),
+    "public, durable, s-maxage=15, stale-while-revalidate=30"
+  );
 });
 
 test("schedule endpoint rejects unsupported methods", async () => {
@@ -66,14 +89,14 @@ test("POST report stores only the constrained application record", async () => {
     now: () => new Date("2026-09-07T12:00:00.000Z"),
     uuid: () => "report-id"
   });
-  const response = await handler(new Request("https://example.test/api/reports", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ block: "2100", streams: ["trash", "recycling"], day: "Tuesday", website: "" })
-  }));
+  const response = await handler(jsonRequest(
+    "https://example.test/api/reports",
+    { block: "2100", streams: ["trash", "recycling"], day: "Tuesday", website: "" }
+  ));
 
   assert.equal(response.status, 201);
   assert.deepEqual(await response.json(), { ok: true });
+  assertApiSecurityHeaders(response);
   assert.equal(memory.records.size, 1);
   assert.deepEqual(JSON.parse(memory.records.get("reports/2100/report-id")), {
     block: "2100",
@@ -95,10 +118,10 @@ test("POST report stores the public label for a non-Ninth Street range", async (
     now: () => new Date("2026-09-07T12:00:00.000Z"),
     uuid: () => "cedar-report"
   });
-  const response = await handler(new Request("https://example.test/api/reports", {
-    method: "POST",
-    body: JSON.stringify({ block: area.id, streams: ["compost"], day: "Thursday" })
-  }));
+  const response = await handler(jsonRequest(
+    "https://example.test/api/reports",
+    { block: area.id, streams: ["compost"], day: "Thursday" }
+  ));
   assert.equal(response.status, 201);
   const stored = JSON.parse(memory.records.get(`reports/${area.id}/cedar-report`));
   assert.equal(stored.street, "Cedar Street");
@@ -109,23 +132,77 @@ test("report endpoint rejects malformed, unsupported, honeypot, and oversized in
   const memory = createMemoryStore();
   const handler = createSubmitReportHandler({ getStoreImpl: memory.getStoreImpl });
   const requests = [
-    new Request("https://example.test/api/reports", { method: "POST", body: "{" }),
     new Request("https://example.test/api/reports", {
       method: "POST",
-      body: JSON.stringify({ block: "9999", streams: ["trash"], day: "Tuesday" })
+      headers: { "content-type": "application/json" },
+      body: "{"
     }),
-    new Request("https://example.test/api/reports", {
-      method: "POST",
-      body: JSON.stringify({ block: "2100", streams: ["trash"], day: "Tuesday", website: "bot" })
+    jsonRequest("https://example.test/api/reports", {
+      block: "9999", streams: ["trash"], day: "Tuesday"
     }),
-    new Request("https://example.test/api/reports", {
-      method: "POST",
-      body: JSON.stringify({ block: "2100", streams: ["trash"], day: "Tuesday", comment: "x".repeat(2100) })
+    jsonRequest("https://example.test/api/reports", {
+      block: "2100", streams: ["trash"], day: "Tuesday", website: "bot"
+    }),
+    jsonRequest("https://example.test/api/reports", {
+      block: "2100", streams: ["trash"], day: "Tuesday", comment: "x".repeat(2100)
     })
   ];
 
   const responses = await Promise.all(requests.map((request) => handler(request)));
   assert.deepEqual(responses.map((response) => response.status), [400, 400, 400, 413]);
+  assert.equal(memory.records.size, 0);
+});
+
+test("report endpoint rejects wrong media types and cross-site browser submissions", async () => {
+  const memory = createMemoryStore();
+  const handler = createSubmitReportHandler({ getStoreImpl: memory.getStoreImpl });
+  const body = { block: "2100", streams: ["trash"], day: "Tuesday" };
+  const requests = [
+    new Request("https://example.test/api/reports", {
+      method: "POST",
+      headers: { "content-type": "text/plain" },
+      body: JSON.stringify(body)
+    }),
+    jsonRequest("https://example.test/api/reports", body, {
+      origin: "https://attacker.test"
+    }),
+    jsonRequest("https://example.test/api/reports", body, {
+      "sec-fetch-site": "cross-site"
+    }),
+    jsonRequest("https://example.test/api/reports", body, {
+      origin: "not a valid origin"
+    })
+  ];
+
+  const responses = await Promise.all(requests.map((request) => handler(request)));
+  assert.deepEqual(responses.map((response) => response.status), [415, 403, 403, 403]);
+  responses.forEach(assertApiSecurityHeaders);
+  assert.equal(memory.records.size, 0);
+});
+
+test("report endpoint accepts an explicit same-origin browser submission", async () => {
+  const memory = createMemoryStore();
+  const handler = createSubmitReportHandler({ getStoreImpl: memory.getStoreImpl });
+  const response = await handler(jsonRequest(
+    "https://berkeleytrashday.org/api/reports",
+    { block: "2100", streams: ["trash"], day: "Tuesday" },
+    { origin: "https://berkeleytrashday.org", "sec-fetch-site": "same-origin" }
+  ));
+
+  assert.equal(response.status, 201);
+  assert.equal(memory.records.size, 1);
+});
+
+test("report endpoint rejects an oversized declared body before reading it", async () => {
+  const memory = createMemoryStore();
+  const handler = createSubmitReportHandler({ getStoreImpl: memory.getStoreImpl });
+  const response = await handler(jsonRequest(
+    "https://example.test/api/reports",
+    { block: "2100", streams: ["trash"], day: "Tuesday" },
+    { "content-length": "2001" }
+  ));
+
+  assert.equal(response.status, 413);
   assert.equal(memory.records.size, 0);
 });
 
@@ -136,8 +213,8 @@ test("report endpoint rejects unsupported methods and declares platform rate lim
   assert.equal(response.status, 405);
   assert.equal(response.headers.get("allow"), "POST");
   assert.deepEqual(submitConfig.rateLimit, {
-    windowLimit: 5,
-    windowSize: 180,
+    windowLimit: 3,
+    windowSize: 600,
     aggregateBy: ["ip", "domain"]
   });
   assert.equal(scheduleConfig.rateLimit.windowLimit, 120);

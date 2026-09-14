@@ -58,7 +58,8 @@ npm run check
 - A versioned local service-area registry with pure search and GeoJSON helpers
 - Netlify Functions for the read and submit APIs
 - Netlify Blobs for small community-report records
-- Function-level IP rate limiting and a form honeypot for basic abuse resistance
+- Function-level IP rate limiting, strict JSON validation, same-origin browser checks,
+  bounded request bodies, and a form honeypot for layered abuse resistance
 
 Reporting coverage is generated from the City of Berkeley's public
 [Block Numbers centerline layer](https://gis.cityofberkeley.info/arcgis/rest/services/Public/Portal_CommSvcs/MapServer/1).
@@ -72,6 +73,13 @@ Range search runs locally in the browser and sends no search text to a geocoder.
 loads style and tile resources from OpenFreeMap, whose servers receive ordinary web
 connection data. No analytics SDK, account system, geolocation permission, or
 client-side tracking is included.
+
+Netlify's hosting layer processes ordinary request data and exposes operational metrics.
+Optional Netlify Web Analytics is the preferred first measurement layer because it is
+server-side and does not add a browser tracking SDK. Enabling analytics is an account-level
+billing decision, not a code requirement. Google Analytics and Google Ads tags are not
+included; adding them requires a separate consent, privacy, and Content Security Policy
+review. See [`specs/008-security-observability`](specs/008-security-observability/).
 
 The selected range also has a seven-day community calendar. It places collection streams
 only on weekdays supported by recent reports and keeps holiday limitations visible. Once
@@ -127,6 +135,7 @@ services page](https://berkeleyca.gov/city-services/trash-recycling/residential-
 
 Bug reports and focused pull requests are welcome. Read
 [`CONTRIBUTING.md`](CONTRIBUTING.md) before proposing a new neighborhood or data field.
+Report vulnerabilities through the private process in [`SECURITY.md`](SECURITY.md).
 
 ## License
 
