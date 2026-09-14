@@ -99,7 +99,7 @@ function WeeklyCalendar({ area, blockSchedule, loadFailed }) {
           <h3 id="calendar-title">Pickup calendar · {area.addressRange} {area.streetName}</h3>
         </div>
         <div className="calendar-heading-actions">
-          <p>Typical week from recent reports. Holiday changes may not appear.</p>
+          <p>Recent reports; holiday schedules may differ.</p>
           <button
             className="calendar-export-button"
             type="button"

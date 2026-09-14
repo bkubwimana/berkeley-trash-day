@@ -879,6 +879,7 @@ h2 {
   color: var(--muted);
   font-size: 0.72rem;
   text-align: right;
+  white-space: nowrap;
 }
 
 .calendar-export-button {
@@ -1436,6 +1437,10 @@ footer p {
   .calendar-heading-actions > p,
   .calendar-export-note {
     text-align: left;
+  }
+
+  .calendar-heading-actions > p {
+    white-space: normal;
   }
 
   .calendar-grid {
