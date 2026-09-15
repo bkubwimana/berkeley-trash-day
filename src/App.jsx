@@ -67,17 +67,20 @@ function BlockSummary({ segment, loadFailed }) {
   );
 }
 
-function WeeklyCalendar({ area, blockSchedule, loadFailed }) {
+function WeeklyCalendar({ area, blockSchedule, loadFailed, termsAccepted }) {
   const calendar = buildWeeklyCalendar(blockSchedule, loadFailed);
   const exportableStreams = consensusCalendarStreams(blockSchedule);
-  const canExport = !loadFailed && exportableStreams.length > 0;
+  const canExport = !loadFailed && termsAccepted && exportableStreams.length > 0;
   const exportNote = loadFailed
     ? "Calendar export unavailable while community data is unavailable."
-    : canExport
-      ? `Downloads 26 weekly reminders for ${exportableStreams.length === 1 ? "the consensus pickup" : `${exportableStreams.length} consensus pickups`}.`
-      : "Available after community consensus.";
+    : exportableStreams.length === 0
+      ? "Available after community consensus."
+      : !termsAccepted
+        ? "Acknowledge the use notice above to download reminders."
+        : `Downloads 26 weekly reminders for ${exportableStreams.length === 1 ? "the consensus pickup" : `${exportableStreams.length} consensus pickups`}.`;
 
   function downloadCalendar() {
+    if (!termsAccepted) return;
     const content = buildPickupCalendar({
       block: area.addressRange,
       streetName: area.streetName,
@@ -160,10 +163,11 @@ function SweepingCalendarIcon() {
   );
 }
 
-function StreetSweeping({ area }) {
+function StreetSweeping({ area, termsAccepted }) {
   const options = streetSweepingOptions(area);
 
   function downloadReminder(option) {
+    if (!termsAccepted) return;
     const content = buildSweepingCalendar({ area, option });
     if (!content) return;
     const url = URL.createObjectURL(new Blob([content], { type: "text/calendar;charset=utf-8" }));
@@ -199,12 +203,13 @@ function StreetSweeping({ area }) {
                   <strong>{option.ordinalLabel} {option.weekday}</strong>
                   <span className="sweeping-period">{option.period} window</span>
                 </div>
-                <button className="sweeping-export-button" type="button" onClick={() => downloadReminder(option)}>
+                <button className="sweeping-export-button" type="button" disabled={!termsAccepted} onClick={() => downloadReminder(option)}>
                   <span aria-hidden="true">↓</span> Add reminder <small>.ics</small>
                 </button>
               </article>
             ))}
           </div>
+          {!termsAccepted && <p className="sweeping-terms-note">Acknowledge the use notice above to download a reminder.</p>}
           <div className="sweeping-warning" role="note">
             <strong>Check the posted sign before parking.</strong>
             <span>Move your car before the posted time to avoid a ticket. No sweeping on City holidays; the next regular date applies.</span>
@@ -219,6 +224,22 @@ function StreetSweeping({ area }) {
           </div>
         </div>
       )}
+    </section>
+  );
+}
+
+function RelianceNotice({ accepted, onChange }) {
+  return (
+    <section className="reliance-notice" aria-labelledby="reliance-title">
+      <span className="reliance-icon" aria-hidden="true">!</span>
+      <div>
+        <h2 id="reliance-title">Verify before you rely on a schedule.</h2>
+        <p id="terms-action-note">Community reports and calendar reminders may be incomplete, wrong, or out of date. Confirm collection days with Berkeley Zero Waste and follow every posted parking sign.</p>
+        <label className="terms-acknowledgement">
+          <input type="checkbox" checked={accepted} onChange={(event) => onChange(event.target.checked)} />
+          <span>I understand and agree to the <a href="/terms.html">Terms of Use</a>, including the limitations for tickets, towing, and missed collections.</span>
+        </label>
+      </div>
     </section>
   );
 }
@@ -239,13 +260,17 @@ function ScheduleCard({ stream, summary, loadFailed }) {
   );
 }
 
-function ReportForm({ block, onBlockChange, onRecorded }) {
+function ReportForm({ block, onBlockChange, onRecorded, termsAccepted }) {
   const formRef = useRef(null);
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState({ text: "", tone: "" });
 
   async function submitReport(event) {
     event.preventDefault();
+    if (!termsAccepted) {
+      setStatus({ text: "Acknowledge the use notice above before submitting.", tone: "error" });
+      return;
+    }
     const formData = new FormData(event.currentTarget);
     const payload = makeReportPayload({
       block: formData.get("block"),
@@ -323,9 +348,10 @@ function ReportForm({ block, onBlockChange, onRecorded }) {
         <input name="confirmed" type="checkbox" required />
         <span>I observed or confirmed this schedule for the selected street range.</span>
       </label>
-      <button id="submit-button" className="primary-button" type="submit" disabled={submitting}>
+      <button id="submit-button" className="primary-button" type="submit" disabled={submitting || !termsAccepted}>
         {submitting ? "Submitting…" : "Submit community report"}
       </button>
+      {!termsAccepted && <p className="form-terms-hint">Acknowledge the use notice above to submit a report.</p>}
       <p id="form-status" className={`form-status ${status.tone}`.trim()} role="status">{status.text}</p>
     </form>
   );
@@ -336,6 +362,7 @@ export default function App() {
   const [schedule, setSchedule] = useState(null);
   const [loadFailed, setLoadFailed] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const loadSchedule = useCallback(async () => {
     setLoading(true);
@@ -369,6 +396,7 @@ export default function App() {
           <a href="#report">Report a day</a>
           <a href="/privacy.html">Privacy</a>
           <a href="https://github.com/bkubwimana/berkeley-trash-day">GitHub</a>
+          <a href="/terms.html">Terms</a>
         </nav>
       </header>
 
@@ -393,6 +421,8 @@ export default function App() {
           </aside>
         </section>
 
+        <RelianceNotice accepted={termsAccepted} onChange={setTermsAccepted} />
+
         <section className="tracker" aria-labelledby="tracker-title">
           <div className="section-heading">
             <div>
@@ -405,8 +435,8 @@ export default function App() {
             <WestBerkeleyMap selectedBlock={block} onSelect={setBlock} />
           </Suspense>
           <BlockSummary segment={selectedSegment} loadFailed={loadFailed} />
-          <WeeklyCalendar area={selectedSegment} blockSchedule={schedule?.blocks?.[block]} loadFailed={loadFailed} />
-          <StreetSweeping area={selectedSegment} />
+          <WeeklyCalendar area={selectedSegment} blockSchedule={schedule?.blocks?.[block]} loadFailed={loadFailed} termsAccepted={termsAccepted} />
+          <StreetSweeping area={selectedSegment} termsAccepted={termsAccepted} />
           <div className="schedule-heading">
             <strong>Pickup details</strong>
             <span className="status-key"><i className="signal signal-consensus" />Consensus <i className="signal signal-developing" />Developing</span>
@@ -427,7 +457,7 @@ export default function App() {
               <li>No account required</li><li>No exact address requested</li><li>Reports expire after 180 days</li>
             </ul>
           </div>
-          <ReportForm block={block} onBlockChange={setBlock} onRecorded={loadSchedule} />
+          <ReportForm block={block} onBlockChange={setBlock} onRecorded={loadSchedule} termsAccepted={termsAccepted} />
         </section>
 
         <section className="method-section" aria-labelledby="method-title">
@@ -453,6 +483,7 @@ export default function App() {
         </div>
         <div className="footer-links">
           <a href="/privacy.html">Privacy</a>
+          <a href="/terms.html">Terms of Use</a>
           <a href="https://github.com/bkubwimana/berkeley-trash-day">Source code</a>
           <a href="https://berkeleyca.gov/city-services/trash-recycling/residential-waste-services">Official service information</a>
         </div>

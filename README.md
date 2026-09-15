@@ -33,6 +33,14 @@ shows the underlying count. The minimum is deliberately isolated as
 The app does not request names, emails, accounts, exact addresses, photos, or location
 coordinates.
 
+The tracker presents a conspicuous reliance notice before its results. Report submission
+and calendar downloads require an affirmative Terms acknowledgement. That checkbox exists
+only in current page memory and is not stored or joined to a report. The Terms explain that
+users must verify collection days with Berkeley Zero Waste and follow posted parking signs;
+they also disclose the limits of community data and calendar reminders. These safeguards
+reduce ambiguity but are not a guarantee against a claim, and the maintainer should obtain
+legal review for the final wording.
+
 ## Local development
 
 Requirements: Node.js 22 or newer and network access the first time the pinned Netlify CLI

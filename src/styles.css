@@ -194,6 +194,60 @@ h1 {
   font-weight: 800;
 }
 
+.reliance-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  margin: -30px 0 22px;
+  padding: 18px 20px;
+  border: 1px solid rgba(182, 109, 0, 0.3);
+  border-radius: 17px;
+  background: #fff8e9;
+}
+
+.reliance-icon {
+  width: 27px;
+  height: 27px;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: #f2d28e;
+  color: #6f4100;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.reliance-notice h2 {
+  margin: 1px 0 5px;
+  font-size: 1rem;
+  letter-spacing: -0.015em;
+}
+
+.reliance-notice p {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.terms-acknowledgement {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  color: #3f3523;
+  font-size: 0.76rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.terms-acknowledgement input {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  margin: 1px 0 0;
+  accent-color: var(--green);
+}
+
 .tracker,
 .report-section {
   border: 1px solid var(--line);
@@ -1090,6 +1144,13 @@ h2 {
   background: #f3f8fd;
 }
 
+.sweeping-export-button:disabled {
+  border-color: var(--line);
+  background: #edf1eb;
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
 .sweeping-export-button small {
   color: var(--muted);
   font-size: 0.61rem;
@@ -1105,6 +1166,12 @@ h2 {
   border-radius: 5px 10px 10px 5px;
   background: rgba(182, 109, 0, 0.07);
   font-size: 0.72rem;
+}
+
+.sweeping-terms-note {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.69rem;
 }
 
 .sweeping-warning strong {
@@ -1429,8 +1496,15 @@ select {
 }
 
 .primary-button:disabled {
-  cursor: wait;
+  cursor: not-allowed;
   opacity: 0.65;
+}
+
+.form-terms-hint {
+  margin: -10px 0 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-align: center;
 }
 
 .form-status {
@@ -1536,6 +1610,11 @@ footer p {
   color: var(--muted);
 }
 
+.legal-page .legal-lede {
+  color: var(--text);
+  font-size: 1.05rem;
+}
+
 @media (max-width: 760px) {
   .site-header {
     min-height: 72px;
@@ -1553,6 +1632,10 @@ footer p {
   .hero {
     gap: 35px;
     padding: 65px 0 45px;
+  }
+
+  .reliance-notice {
+    margin: -12px 0 22px;
   }
 
   h1 {
@@ -1746,6 +1829,10 @@ footer p {
 
   .sweeping-section {
     padding: 17px 14px;
+  }
+
+  .reliance-notice {
+    padding: 16px 14px;
   }
 
   .sweeping-heading {

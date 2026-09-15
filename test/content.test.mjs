@@ -33,6 +33,7 @@ test("privacy page states collected and excluded data", async () => {
   assert.match(html, /hosting provider may temporarily process standard connection data/i);
   assert.match(html, /Reports contribute to the schedule for 180 days/i);
   assert.match(html, /does not\s+sell community-report data/i);
+  assert.match(html, /Terms acknowledgement is held only in the current page's memory/i);
 });
 
 test("map uses real cross streets in order with complete data attribution", async () => {
@@ -137,4 +138,19 @@ test("street sweeping is side-aware, calendar-enabled, and safety qualified", as
   assert.match(model, /Odd addresses/);
   assert.match(model, /Even addresses/);
   assert.match(model, /optOutBlocks\.includes/);
+});
+
+test("reliance actions require a conspicuous Terms acknowledgement", async () => {
+  const app = await readFile(new URL("src/App.jsx", root), "utf8");
+  const terms = await readFile(new URL("terms.html", root), "utf8");
+
+  assert.match(app, /Verify before you rely on a schedule/);
+  assert.match(app, /I understand and agree to the/);
+  assert.match(app, /tickets, towing, and missed collections/);
+  assert.match(app, /disabled=\{submitting \|\| !termsAccepted\}/);
+  assert.match(app, /disabled=\{!termsAccepted\}/);
+  assert.match(terms, /Posted parking signs control/i);
+  assert.match(terms, /parking tickets, citations, towing or storage charges, missed collections/i);
+  assert.match(terms, /fullest extent\s+permitted by law/i);
+  assert.match(terms, /do not exclude liability or waive a right that cannot lawfully be\s+excluded/i);
 });
