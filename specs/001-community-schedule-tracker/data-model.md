@@ -63,12 +63,13 @@ A computed view for one SupportedBlock and one CollectionStream.
 ### Status calculation
 
 - `No reports`: `total` is 0; `day` is null.
-- `Community consensus`: `total >= 3`, there is one unambiguous leading weekday, and
+- `Community consensus`: `total >= 1` during the early traction phase, there is one unambiguous leading weekday, and
   `winningReports / total >= 2/3`.
 - `Developing`: every other non-empty case.
 
 The ratio, not the rounded display percentage, controls consensus. Thus 2 of 3 qualifies;
-the displayed percentage is 67%.
+the displayed percentage is 67%. The temporary one-report minimum is isolated in
+`MINIMUM_REPORTS` and can be raised without changing the data model.
 
 ## BlockSchedule
 

@@ -422,7 +422,7 @@ export default function App() {
           <div className="report-copy">
             <p className="kicker">Help a neighbor</p>
             <h2 id="report-title">What day are carts collected?</h2>
-            <p>Share what you have observed for this street range. Three recent reports and two-thirds agreement are needed for community consensus.</p>
+            <p>Share what you have observed for this street range. During the early beta, one recent report publishes a community result and the exact count stays visible.</p>
             <ul className="privacy-points">
               <li>No account required</li><li>No exact address requested</li><li>Reports expire after 180 days</li>
             </ul>
@@ -436,7 +436,7 @@ export default function App() {
           <div className="method-grid">
             <article><span>01</span><h3>Neighbors report</h3><p>People submit only a street range, selected collection types, and observed day.</p></article>
             <article><span>02</span><h3>Reports agree</h3><p>We show the leading day and exactly how many recent reports support it.</p></article>
-            <article><span>03</span><h3>Consensus appears</h3><p>At least three reports and two-thirds agreement are required.</p></article>
+            <article><span>03</span><h3>Consensus appears</h3><p>For now, one recent report is enough; the exact supporting count always stays visible.</p></article>
           </div>
         </section>
       </main>

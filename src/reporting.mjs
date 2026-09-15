@@ -4,7 +4,8 @@ export const BLOCKS = SERVICE_AREAS.map(({ id }) => id);
 export const STREAMS = ["trash", "recycling", "compost"];
 export const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 export const REPORT_WINDOW_DAYS = 180;
-export const MINIMUM_REPORTS = 3;
+// Early-beta traction setting. Raise this to 3 when report volume is established.
+export const MINIMUM_REPORTS = 1;
 export const AGREEMENT_THRESHOLD = 2 / 3;
 
 const INPUT_FIELDS = new Set(["block", "stream", "streams", "day", "website"]);

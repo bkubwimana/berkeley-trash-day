@@ -32,7 +32,7 @@ labeled result.
 2. **Given** a block has recent reports but does not meet the consensus rule, **When** a
    resident selects it, **Then** the leading day, exact agreement count, and "Developing"
    status are shown.
-3. **Given** a block has at least three recent reports with at least 67% agreement,
+3. **Given** a block has at least one recent report with an unambiguous leading day and at least 67% agreement,
    **When** a resident selects it, **Then** the leading day, exact agreement count, and
    "Community consensus" status are shown.
 
@@ -134,8 +134,10 @@ license, specification, privacy rules, local setup steps, tests, and contributio
 - **FR-003**: For each collection type with recent reports, the service MUST display the
   leading weekday, number of reports supporting it, total recent reports, and a textual
   status.
-- **FR-004**: The service MUST display "Community consensus" only when at least three
-  recent reports exist and at least 67% support the leading weekday.
+- **FR-004**: During the early traction phase, the service MUST display "Community consensus"
+  when at least one recent report exists, the leading day is unambiguous, and at least 67%
+  support that weekday. The minimum MUST remain a named configuration constant so it can
+  return to three without a data migration.
 - **FR-005**: The service MUST display a no-reports state without implying a pickup day when
   no recent report exists for a block and collection type.
 - **FR-006**: A neighbor MUST be able to submit exactly one supported block, one or more
@@ -185,8 +187,9 @@ license, specification, privacy rules, local setup steps, tests, and contributio
   personal identity or exact-address information.
 - **SC-003**: In scenario testing, 100% of displayed days and agreement counts match the
   applicable reports from the preceding 180 days.
-- **SC-004**: In scenario testing, 100% of consensus labels satisfy both the three-report
-  minimum and 67% agreement threshold, and no other result receives that label.
+- **SC-004**: In scenario testing, 100% of consensus labels satisfy both the configured
+  one-report early-beta minimum and 67% agreement threshold, and no other result receives
+  that label.
 - **SC-005**: At least 90% of first-time test participants can correctly identify a result as
   community-reported and locate the official City information path without assistance.
 - **SC-006**: All primary lookup and report actions can be completed using only a keyboard at

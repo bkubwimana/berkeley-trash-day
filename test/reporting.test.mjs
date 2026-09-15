@@ -71,7 +71,7 @@ test("returns a complete empty schedule without suggesting a weekday", () => {
   });
 });
 
-test("shows one observation as developing", () => {
+test("publishes one observation during the early-beta traction phase", () => {
   const blocks = aggregateReports([
     { block: "2100", stream: "trash", day: "Tuesday", reportedAt }
   ], now);
@@ -80,7 +80,7 @@ test("shows one observation as developing", () => {
     winningReports: 1,
     total: 1,
     agreementPercent: 100,
-    status: "Developing"
+    status: "Community consensus"
   });
 });
 
@@ -108,7 +108,7 @@ test("counts one multi-stream record on the same day for every selected stream",
   }
 });
 
-test("publishes consensus only after three reports and two-thirds agreement", () => {
+test("keeps the two-thirds agreement rule as reports accumulate", () => {
   const reports = [
     { block: "2100", stream: "trash", day: "Tuesday", reportedAt },
     { block: "2100", stream: "trash", day: "Tuesday", reportedAt },

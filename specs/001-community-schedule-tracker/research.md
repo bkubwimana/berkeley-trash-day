@@ -49,18 +49,19 @@ affiliation or verification.
 
 ## Decision 3: Use transparent recent-report consensus
 
-**Decision**: Include only reports received in the previous 180 days. Show the leading day
-and counts after the first report, but reserve "Community consensus" for three or more
-reports with at least two-thirds agreement. Ties remain "Developing."
+**Decision**: Include only reports received in the previous 180 days. During the early
+traction phase, publish "Community consensus" after one report while always showing the
+raw count. Keep the two-thirds rule as reports accumulate, and keep ties "Developing."
 
 **Rationale**: The rule is understandable, testable, and able to adapt when schedules
-change. Three reports are enough to make the initial beta achievable without presenting a
-single observation as broad agreement.
+change. The minimum is a named constant and will return to three when report volume is
+established. This temporary setting accepts higher false-consensus risk in exchange for
+making sparse early participation useful; the raw count and unofficial label remain visible.
 
 **Alternatives considered**:
 
 - Permanent reports: rejected because old observations could outvote a changed schedule.
-- One-report verification: rejected because a mistake would appear authoritative.
+- Permanent one-report verification: rejected because a mistake would appear authoritative.
 - Bayesian or reputation-weighted scoring: rejected because the anonymous beta has no
   justified prior or contributor identity signal.
 

@@ -65,7 +65,7 @@ test("GET schedule matches the documented aggregate contract", async () => {
   assert.equal(body.blocks["2100"].trash.total, 1);
   assert.deepEqual(body.methodology, {
     windowDays: 180,
-    minimumReports: 3,
+    minimumReports: 1,
     agreementThreshold: 2 / 3
   });
   assertApiSecurityHeaders(response);

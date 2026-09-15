@@ -154,7 +154,7 @@ components:
               const: 180
             minimumReports:
               type: integer
-              const: 3
+              const: 1
             agreementThreshold:
               type: number
               const: 0.6666666666666666

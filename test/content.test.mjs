@@ -11,7 +11,7 @@ test("tracker labels provenance and provides official Berkeley information", asy
   assert.match(app, /Not affiliated with the City of Berkeley/);
   assert.match(app, /\(510\) 981-7270/);
   assert.match(app, /berkeleyca\.gov\/city-services\/trash-recycling\/residential-waste-services/);
-  assert.match(app, /Three recent reports and two-thirds agreement/);
+  assert.match(app, /one recent report publishes a community result/);
   assert.match(app, /Reports expire after 180 days/);
 });
 

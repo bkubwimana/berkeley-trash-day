@@ -24,10 +24,11 @@ Each report stores only:
 - Observed weekday
 - Server receipt time
 
-Reports influence the public result for 180 days. A result becomes **Community
-consensus** when it has at least three reports and at least 67% agree on the leading
-day. The interface always shows the underlying count, such as “2 of 3 recent reports
-agree.”
+Reports influence the public result for 180 days. During the early traction phase, a
+result becomes **Community consensus** after one recent report; the 67% leading-day rule
+still applies as more reports arrive and ties remain developing. The interface always
+shows the underlying count. The minimum is deliberately isolated as
+`MINIMUM_REPORTS` so it can return to three without changing stored data.
 
 The app does not request names, emails, accounts, exact addresses, photos, or location
 coordinates.
