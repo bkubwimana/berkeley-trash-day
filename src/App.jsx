@@ -15,6 +15,11 @@ import {
   makeReportPayload
 } from "./corridor.mjs";
 import { SERVICE_AREA_METADATA } from "./service-areas.generated.mjs";
+import { STREET_SWEEPING_METADATA, streetSweepingOptions } from "./street-sweeping.mjs";
+import {
+  buildSweepingCalendar,
+  sweepingCalendarFilename
+} from "./sweeping-calendar.mjs";
 const WestBerkeleyMap = lazy(() => import("./WestBerkeleyMap.jsx").then((module) => ({ default: module.WestBerkeleyMap })));
 function LocationPinIcon({ className = "" }) {
   return (
@@ -141,6 +146,79 @@ function WeeklyCalendar({ area, blockSchedule, loadFailed }) {
           </article>
         ))}
       </div>
+    </section>
+  );
+}
+
+function SweepingCalendarIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3.5" y="5.5" width="17" height="15" rx="3" />
+      <path d="M7.5 3.5v4M16.5 3.5v4M3.5 10h17" />
+      <path d="M8 14h3M8 17h5" />
+    </svg>
+  );
+}
+
+function StreetSweeping({ area }) {
+  const options = streetSweepingOptions(area);
+
+  function downloadReminder(option) {
+    const content = buildSweepingCalendar({ area, option });
+    if (!content) return;
+    const url = URL.createObjectURL(new Blob([content], { type: "text/calendar;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = sweepingCalendarFilename(area.addressRange, area.streetName, option.sideLabel);
+    document.body.append(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  return (
+    <section id="sweeping" className="sweeping-section" aria-labelledby="sweeping-title">
+      <div className="sweeping-heading">
+        <div>
+          <p className="kicker">Official parking reminder</p>
+          <h3 id="sweeping-title">Street sweeping · {area.addressRange} {area.streetName}</h3>
+        </div>
+        <a className="city-source-link" href={STREET_SWEEPING_METADATA.sourcePageUrl}>City schedule ↗</a>
+      </div>
+
+      {options.length > 0 ? (
+        <>
+          <p className="sweeping-intro">Choose the side where you park. The City publishes an AM/PM window; the sign gives the exact restriction.</p>
+          <div className="sweeping-grid">
+            {options.map((option) => (
+              <article className="sweeping-card" key={option.id}>
+                <div className="sweeping-card-icon"><SweepingCalendarIcon /></div>
+                <div className="sweeping-card-copy">
+                  <span className="sweeping-side">{option.sideLabel}</span>
+                  <span className="sweeping-parity">{option.addressParity}</span>
+                  <strong>{option.ordinalLabel} {option.weekday}</strong>
+                  <span className="sweeping-period">{option.period} window</span>
+                </div>
+                <button className="sweeping-export-button" type="button" onClick={() => downloadReminder(option)}>
+                  <span aria-hidden="true">↓</span> Add reminder <small>.ics</small>
+                </button>
+              </article>
+            ))}
+          </div>
+          <div className="sweeping-warning" role="note">
+            <strong>Check the posted sign before parking.</strong>
+            <span>Move your car before the posted time to avoid a ticket. No sweeping on City holidays; the next regular date applies.</span>
+          </div>
+        </>
+      ) : (
+        <div className="sweeping-empty">
+          <div className="sweeping-card-icon"><SweepingCalendarIcon /></div>
+          <div>
+            <strong>No published residential schedule found for this range.</strong>
+            <p>This does not mean parking is unrestricted. Check posted signs or the <a href={STREET_SWEEPING_METADATA.sourcePageUrl}>City's street-sweeping schedules</a>.</p>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -287,6 +365,7 @@ export default function App() {
           <span>Berkeley Trash Day</span>
         </a>
         <nav aria-label="Main navigation">
+          <a href="#sweeping">Street sweeping</a>
           <a href="#report">Report a day</a>
           <a href="/privacy.html">Privacy</a>
           <a href="https://github.com/bkubwimana/berkeley-trash-day">GitHub</a>
@@ -327,6 +406,7 @@ export default function App() {
           </Suspense>
           <BlockSummary segment={selectedSegment} loadFailed={loadFailed} />
           <WeeklyCalendar area={selectedSegment} blockSchedule={schedule?.blocks?.[block]} loadFailed={loadFailed} />
+          <StreetSweeping area={selectedSegment} />
           <div className="schedule-heading">
             <strong>Pickup details</strong>
             <span className="status-key"><i className="signal signal-consensus" />Consensus <i className="signal signal-developing" />Developing</span>
@@ -368,6 +448,7 @@ export default function App() {
           <p className="map-source">
             Basemap: <a href="https://openfreemap.org/">OpenFreeMap</a> · <a href="https://openmaptiles.org/">© OpenMapTiles</a> · data <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>.<br />
             Reporting ranges: <a href="https://gis.cityofberkeley.info/arcgis/rest/services/Public/Portal_CommSvcs/MapServer/1">City of Berkeley Block Numbers</a> · <a href="https://berkeleyca.gov/city-services/community-gis-portal">Community GIS Portal</a>. Addressable Berkeley centerlines on or west of San Pablo Avenue.
+            <br />Street sweeping: <a href={STREET_SWEEPING_METADATA.sourcePageUrl}>City of Berkeley residential schedules</a>. Posted signs control.
           </p>
         </div>
         <div className="footer-links">

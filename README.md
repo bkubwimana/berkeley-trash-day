@@ -89,6 +89,17 @@ works with Apple Calendar and Outlook and can be imported into Google Calendar. 
 holiday changes. The file is generated locally in the browser without calendar permissions
 or personal data.
 
+Street sweeping is separate from community pickup reports. The app matches the selected
+range against the City of Berkeley's three published residential street-sweeping tables,
+then shows each curb side independently with address parity, ordinal week, weekday, and
+AM/PM window. The current City tables overlap 90 of the registry's 277 West Berkeley
+ranges. Missing coverage is not interpreted as “no sweeping”; posted signs remain the
+authority.
+
+Each available curb side can be downloaded as a local `.ics` file with 24 monthly
+check/move-car reminders and a one-day alert. The reminder intentionally does not invent
+an exact time, and it notes that City holidays are not swept.
+
 ## API
 
 `GET /api/schedule` returns recent range-level aggregates and the consensus method.
@@ -124,6 +135,25 @@ npm run check
 The generator preserves the four original Ninth Street IDs, groups duplicate centerline
 fragments into one resident-facing range, derives nearby cross streets, and refuses to
 write an unexpectedly small result.
+
+## Refreshing street-sweeping schedules
+
+Download the three PDFs linked from the [City of Berkeley street-sweeping
+page](https://berkeleyca.gov/city-services/streets-sidewalks-sewers-and-utilities/street-sweeping),
+then run:
+
+```bash
+npm run generate:street-sweeping -- \
+  --a-g path/to/StreetSweepingSchedule_StNamesA-G.pdf \
+  --h-z path/to/StreetSweepingSchedule_StNamesH-Z.pdf \
+  --numbered path/to/StreetSweepingSchedule_StNumbered.pdf
+npm test
+npm run check
+```
+
+The importer uses `pdftotext -layout`, validates the table schema and minimum row count,
+normalizes opt-out block notation, and writes the checked-in runtime module. The deployed
+site does not fetch or parse PDFs.
 
 ## Official information
 

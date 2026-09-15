@@ -123,3 +123,18 @@ test("light theme, generated logo, and weekly calendar are present", async () =>
   assert.match(app, /Available after community consensus/);
   assert.doesNotMatch(css, /body\s*\{[^}]*min-width:\s*320px/s);
 });
+
+test("street sweeping is side-aware, calendar-enabled, and safety qualified", async () => {
+  const app = await readFile(new URL("src/App.jsx", root), "utf8");
+  const model = await readFile(new URL("src/street-sweeping.mjs", root), "utf8");
+
+  assert.match(app, /Official parking reminder/);
+  assert.match(app, /Choose the side where you park/);
+  assert.match(app, /Add reminder/);
+  assert.match(app, /Move your car before the posted time to avoid a ticket/);
+  assert.match(app, /No published residential schedule found/);
+  assert.match(app, /Posted signs control/);
+  assert.match(model, /Odd addresses/);
+  assert.match(model, /Even addresses/);
+  assert.match(model, /optOutBlocks\.includes/);
+});

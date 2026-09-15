@@ -89,7 +89,7 @@ export function buildPickupCalendar({
       "RRULE:FREQ=WEEKLY;COUNT=26",
       `SUMMARY:${escapeCalendarText(`${stream.label} pickup - ${block} ${streetName}`)}`,
       `DESCRIPTION:${escapeCalendarText("Unofficial community reminder. Holiday changes may not appear. Verify changes with Berkeley Zero Waste.")}`,
-      "URL:https://berkeleytrashday.netlify.app/",
+      "URL:https://berkeleytrashday.org/",
       "END:VEVENT"
     );
   }
