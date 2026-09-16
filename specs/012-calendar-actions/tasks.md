@@ -9,4 +9,4 @@
 - [x] Update Privacy, Terms, sitemap dates, and prior specifications.
 - [x] Add provider URL, event model, disclosure, and interaction tests.
 - [x] Complete production build and visual verification.
-- [ ] Deploy and verify the production release.
+- [x] Deploy and verify the production release.
