@@ -7,5 +7,5 @@
 - [x] Write substantive static pickup and street-sweeping guides.
 - [x] Add internal links, build inputs, and sitemap entries.
 - [x] Add automated search-discovery content tests.
-- [ ] Validate the production deployment and crawl files.
+- [x] Validate the production deployment and crawl files.
 - [ ] Submit the sitemap and request homepage indexing in the owner’s Search Console.
