@@ -149,11 +149,27 @@ test("reliance actions require a conspicuous Terms acknowledgement", async () =>
   assert.match(app, /I understand and agree to the/);
   assert.match(app, /tickets, towing, and missed collections/);
   assert.match(app, /disabled=\{submitting \|\| !termsAccepted\}/);
-  assert.match(app, /disabled=\{!termsAccepted\}/);
+  assert.match(app, /function TermsActionDialog/);
+  assert.match(app, /I agree and continue/);
+  assert.match(app, /requestTerms\(\(\) => setCalendarDialogOpen\(true\)\)/);
+  assert.match(app, /requestTerms\(\(\) => setSelectedOption\(option\)\)/);
   assert.match(terms, /Posted parking signs control/i);
   assert.match(terms, /parking tickets, citations, towing or storage charges, missed collections/i);
   assert.match(terms, /fullest extent\s+permitted by law/i);
   assert.match(terms, /do not exclude liability or waive a right that cannot lawfully be\s+excluded/i);
+});
+
+test("calendar actions offer providers and preserve recurring file export", async () => {
+  const app = await readFile(new URL("src/App.jsx", root), "utf8");
+  const privacy = await readFile(new URL("privacy.html", root), "utf8");
+
+  assert.match(app, /Google Calendar/);
+  assert.match(app, /Outlook/);
+  assert.match(app, /Download recurring \.ics/);
+  assert.match(app, /next occurrence for review/i);
+  assert.doesNotMatch(app, /Add reminder <small>\.ics<\/small>/);
+  assert.match(privacy, /If you choose Google Calendar or Outlook/i);
+  assert.match(privacy, /recurring <code>\.ics<\/code> file keeps generation local/i);
 });
 
 test("search discovery metadata and useful guides are published", async () => {

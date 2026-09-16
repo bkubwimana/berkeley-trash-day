@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   buildPickupCalendar,
   consensusCalendarStreams,
+  pickupCalendarEvents,
   pickupCalendarFilename
 } from "../src/calendar.mjs";
 
@@ -56,4 +57,27 @@ test("does not generate a file without a valid consensus weekday", () => {
 
 test("uses a stable readable calendar filename", () => {
   assert.equal(pickupCalendarFilename("2100"), "berkeley-trash-day-2100-9th-street.ics");
+});
+
+test("builds one provider event per consensus pickup", () => {
+  const events = pickupCalendarEvents({
+    block: "2100",
+    streetName: "9th Street",
+    blockSchedule: {
+      trash: { day: "Tuesday", status: "Community consensus" },
+      recycling: { day: "Friday", status: "Community consensus" },
+      compost: { day: "Thursday", status: "Developing" }
+    },
+    referenceDate: new Date("2026-09-07T18:00:00Z")
+  });
+
+  assert.deepEqual(events.map(({ id, title, startDate, recurrenceLabel }) => ({
+    id,
+    title,
+    startDate: startDate.toISOString(),
+    recurrenceLabel
+  })), [
+    { id: "trash", title: "Trash pickup - 2100 9th Street", startDate: "2026-09-08T00:00:00.000Z", recurrenceLabel: "Weekly for 26 weeks" },
+    { id: "recycling", title: "Recycling pickup - 2100 9th Street", startDate: "2026-09-11T00:00:00.000Z", recurrenceLabel: "Weekly for 26 weeks" }
+  ]);
 });

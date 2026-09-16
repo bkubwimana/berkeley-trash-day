@@ -6,15 +6,23 @@
 
 ## User Story
 
-As a resident viewing a supported range, I can download its consensus pickup days as a calendar file so I do not have to remember the schedule manually.
+As a resident viewing a supported range, I can open the next occurrence in Google Calendar
+or Outlook, or download the complete recurring series as a calendar file, so I do not have
+to remember the schedule manually.
 
 ## Acceptance Scenarios
 
-1. **Given** one or more streams have `Community consensus`, **when** the resident selects “Add to calendar,” **then** one `.ics` file downloads with a weekly all-day reminder for each consensus stream.
+1. **Given** one or more streams have `Community consensus`, **when** the resident selects
+   “Add to calendar,” **then** a chooser offers direct Google and Outlook actions for each
+   consensus stream and one recurring `.ics` file for all consensus streams.
 2. **Given** a stream is still `Developing` or has no reports, **when** the calendar is exported, **then** that stream is omitted.
 3. **Given** no stream has consensus, **then** the calendar action remains visible but disabled and explains when it becomes available.
 4. **Given** multiple streams share the same weekday, **then** each is exported as a separate event on that weekday.
 5. **Given** an exported reminder, **then** it is labeled unofficial, says holiday changes may not appear, and does not invent a pickup time.
+6. **Given** the resident chooses Google Calendar or Outlook, **then** the next all-day
+   occurrence opens prefilled for review without being represented as the full recurrence.
+7. **Given** the resident chooses the `.ics` option, **then** the complete finite recurring
+   series is downloaded for import into a compatible calendar application.
 
 ## Requirements
 
@@ -28,6 +36,8 @@ As a resident viewing a supported range, I can download its consensus pickup day
 - **FR-008**: The UI MUST state that holiday changes may not appear.
 - **FR-009**: Calendar generation MUST happen locally in the browser and MUST NOT request calendar identity, permissions, or personal data.
 - **FR-010**: This feature supersedes the export deferral in `003-friendly-weekly-calendar`; the new consensus-only, finite recurrence and explicit disclaimer are required safeguards.
+- **FR-011**: The action MUST offer Google Calendar, Outlook, and recurring `.ics` choices
+  and clearly state the recurrence difference.
 
 ## Success Criteria
 

@@ -3,8 +3,14 @@ import { CollectionIcon } from "./CollectionIcon.jsx";
 import {
   buildPickupCalendar,
   consensusCalendarStreams,
+  pickupCalendarEvents,
   pickupCalendarFilename
 } from "./calendar.mjs";
+import {
+  calendarEventDateLabel,
+  googleCalendarUrl,
+  outlookCalendarUrl
+} from "./calendar-links.mjs";
 import {
   CORRIDOR,
   STREAMS,
@@ -18,6 +24,7 @@ import { SERVICE_AREA_METADATA } from "./service-areas.generated.mjs";
 import { STREET_SWEEPING_METADATA, streetSweepingOptions } from "./street-sweeping.mjs";
 import {
   buildSweepingCalendar,
+  sweepingCalendarEvent,
   sweepingCalendarFilename
 } from "./sweeping-calendar.mjs";
 import {
@@ -72,20 +79,114 @@ function BlockSummary({ segment, loadFailed }) {
   );
 }
 
-function WeeklyCalendar({ area, blockSchedule, loadFailed, termsAccepted }) {
+function ModalFrame({ open, titleId, onClose, className = "", children }) {
+  const panelRef = useRef(null);
+  const previousFocusRef = useRef(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    previousFocusRef.current = document.activeElement;
+    panelRef.current?.focus();
+
+    function closeOnEscape(event) {
+      if (event.key === "Escape") onCloseRef.current();
+    }
+
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("keydown", closeOnEscape);
+      previousFocusRef.current?.focus?.();
+    };
+  }, [open]);
+
+  if (!open) return null;
+
+  return (
+    <div className="modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+      <section
+        className={`modal-panel ${className}`.trim()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        ref={panelRef}
+        tabIndex="-1"
+      >
+        {children}
+      </section>
+    </div>
+  );
+}
+
+function TermsActionDialog({ open, onCancel, onAccept }) {
+  return (
+    <ModalFrame open={open} titleId="terms-dialog-title" onClose={onCancel} className="terms-action-dialog">
+      <button className="modal-close" type="button" aria-label="Close" onClick={onCancel}>×</button>
+      <p className="kicker">One quick confirmation</p>
+      <h2 id="terms-dialog-title">Verify before adding a reminder</h2>
+      <p>Community pickup days and calendar reminders may be incomplete, wrong, or out of date. Confirm collection days with Berkeley Zero Waste and always follow posted parking signs.</p>
+      <p className="modal-terms-copy">By continuing, you agree to the <a href="/terms.html">Terms of Use</a>, including the limitations for tickets, towing, and missed collections.</p>
+      <div className="modal-actions">
+        <button className="modal-secondary-button" type="button" onClick={onCancel}>Not now</button>
+        <button className="modal-primary-button" type="button" onClick={onAccept}>I agree and continue</button>
+      </div>
+    </ModalFrame>
+  );
+}
+
+function CalendarActionDialog({ open, title, events, downloadLabel, onDownload, onClose }) {
+  return (
+    <ModalFrame open={open} titleId="calendar-dialog-title" onClose={onClose} className="calendar-action-dialog">
+      <button className="modal-close" type="button" aria-label="Close" onClick={onClose}>×</button>
+      <p className="kicker">Add to calendar</p>
+      <h2 id="calendar-dialog-title">{title}</h2>
+      <p className="calendar-dialog-intro">Google and Outlook open the next occurrence for review. Use the calendar file to import the complete recurring series.</p>
+      <div className="calendar-provider-events">
+        {events.map((event) => (
+          <article className="calendar-provider-event" key={event.id}>
+            <div>
+              <strong>{event.title}</strong>
+              <span>{calendarEventDateLabel(event)} · {event.recurrenceLabel}</span>
+            </div>
+            <div className="calendar-provider-links">
+              <a href={googleCalendarUrl(event)} target="_blank" rel="noreferrer" onClick={onClose}>Google Calendar</a>
+              <a href={outlookCalendarUrl(event)} target="_blank" rel="noreferrer" onClick={onClose}>Outlook</a>
+            </div>
+          </article>
+        ))}
+      </div>
+      <div className="calendar-download-choice">
+        <div>
+          <strong>Recurring calendar file</strong>
+          <span>Works with Apple Calendar, Outlook, Google Calendar import, and other calendar apps.</span>
+        </div>
+        <button type="button" onClick={onDownload}>{downloadLabel}</button>
+      </div>
+    </ModalFrame>
+  );
+}
+
+function WeeklyCalendar({ area, blockSchedule, loadFailed, termsAccepted, requestTerms }) {
+  const [calendarDialogOpen, setCalendarDialogOpen] = useState(false);
   const calendar = buildWeeklyCalendar(blockSchedule, loadFailed);
   const exportableStreams = consensusCalendarStreams(blockSchedule);
-  const canExport = !loadFailed && termsAccepted && exportableStreams.length > 0;
+  const providerEvents = pickupCalendarEvents({
+    block: area.addressRange,
+    streetName: area.streetName,
+    blockSchedule
+  });
+  const canExport = !loadFailed && exportableStreams.length > 0;
   const exportNote = loadFailed
     ? "Calendar export unavailable while community data is unavailable."
     : exportableStreams.length === 0
       ? "Available after community consensus."
-      : !termsAccepted
-        ? "Acknowledge the use notice above to download reminders."
-        : `Downloads 26 weekly reminders for ${exportableStreams.length === 1 ? "the consensus pickup" : `${exportableStreams.length} consensus pickups`}.`;
+      : termsAccepted
+        ? "Choose Google, Outlook, or a recurring calendar file."
+        : "Select to confirm the use notice and choose a calendar.";
 
   function downloadCalendar() {
-    if (!termsAccepted) return;
     const content = buildPickupCalendar({
       block: area.addressRange,
       streetName: area.streetName,
@@ -102,6 +203,12 @@ function WeeklyCalendar({ area, blockSchedule, loadFailed, termsAccepted }) {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
+    setCalendarDialogOpen(false);
+  }
+
+  function openCalendarChoices() {
+    if (!canExport) return;
+    requestTerms(() => setCalendarDialogOpen(true));
   }
 
   return (
@@ -118,9 +225,9 @@ function WeeklyCalendar({ area, blockSchedule, loadFailed, termsAccepted }) {
             type="button"
             disabled={!canExport}
             aria-describedby="calendar-export-note"
-            onClick={downloadCalendar}
+            onClick={openCalendarChoices}
           >
-            <span aria-hidden="true">↓</span> Add to calendar <small>.ics</small>
+            <span aria-hidden="true">＋</span> Add to calendar
           </button>
           <span id="calendar-export-note" className="calendar-export-note">{exportNote}</span>
         </div>
@@ -154,6 +261,14 @@ function WeeklyCalendar({ area, blockSchedule, loadFailed, termsAccepted }) {
           </article>
         ))}
       </div>
+      <CalendarActionDialog
+        open={calendarDialogOpen}
+        title={`Pickup reminders · ${area.addressRange} ${area.streetName}`}
+        events={providerEvents}
+        downloadLabel="Download recurring .ics"
+        onDownload={downloadCalendar}
+        onClose={() => setCalendarDialogOpen(false)}
+      />
     </section>
   );
 }
@@ -168,11 +283,12 @@ function SweepingCalendarIcon() {
   );
 }
 
-function StreetSweeping({ area, termsAccepted }) {
+function StreetSweeping({ area, termsAccepted, requestTerms }) {
+  const [selectedOption, setSelectedOption] = useState(null);
   const options = streetSweepingOptions(area);
+  const selectedEvent = selectedOption ? sweepingCalendarEvent({ area, option: selectedOption }) : null;
 
   function downloadReminder(option) {
-    if (!termsAccepted) return;
     const content = buildSweepingCalendar({ area, option });
     if (!content) return;
     const url = URL.createObjectURL(new Blob([content], { type: "text/calendar;charset=utf-8" }));
@@ -183,6 +299,11 @@ function StreetSweeping({ area, termsAccepted }) {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
+    setSelectedOption(null);
+  }
+
+  function openReminderChoices(option) {
+    requestTerms(() => setSelectedOption(option));
   }
 
   return (
@@ -208,13 +329,13 @@ function StreetSweeping({ area, termsAccepted }) {
                   <strong>{option.ordinalLabel} {option.weekday}</strong>
                   <span className="sweeping-period">{option.period} window</span>
                 </div>
-                <button className="sweeping-export-button" type="button" disabled={!termsAccepted} onClick={() => downloadReminder(option)}>
-                  <span aria-hidden="true">↓</span> Add reminder <small>.ics</small>
+                <button className="sweeping-export-button" type="button" onClick={() => openReminderChoices(option)}>
+                  <span aria-hidden="true">＋</span> Add reminder
                 </button>
               </article>
             ))}
           </div>
-          {!termsAccepted && <p className="sweeping-terms-note">Acknowledge the use notice above to download a reminder.</p>}
+          {!termsAccepted && <p className="sweeping-terms-note">Select a reminder to confirm the use notice and choose a calendar.</p>}
           <div className="sweeping-warning" role="note">
             <strong>Check the posted sign before parking.</strong>
             <span>Move your car before the posted time to avoid a ticket. No sweeping on City holidays; the next regular date applies.</span>
@@ -229,6 +350,14 @@ function StreetSweeping({ area, termsAccepted }) {
           </div>
         </div>
       )}
+      <CalendarActionDialog
+        open={Boolean(selectedOption && selectedEvent)}
+        title={selectedOption ? `Street sweeping · ${selectedOption.sideLabel}` : "Street sweeping reminder"}
+        events={selectedEvent ? [selectedEvent] : []}
+        downloadLabel="Download recurring .ics"
+        onDownload={() => downloadReminder(selectedOption)}
+        onClose={() => setSelectedOption(null)}
+      />
     </section>
   );
 }
@@ -370,10 +499,34 @@ export default function App() {
   const [loadFailed, setLoadFailed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [termsAccepted, setTermsAccepted] = useState(() => readTermsAcceptance());
+  const [termsDialogOpen, setTermsDialogOpen] = useState(false);
+  const pendingTermsActionRef = useRef(null);
 
   function updateTermsAcceptance(accepted) {
     setTermsAccepted(accepted);
     writeTermsAcceptance(accepted);
+  }
+
+  function requestTerms(action) {
+    if (termsAccepted) {
+      action();
+      return;
+    }
+    pendingTermsActionRef.current = action;
+    setTermsDialogOpen(true);
+  }
+
+  function cancelTermsAction() {
+    pendingTermsActionRef.current = null;
+    setTermsDialogOpen(false);
+  }
+
+  function acceptTermsAction() {
+    const action = pendingTermsActionRef.current;
+    pendingTermsActionRef.current = null;
+    updateTermsAcceptance(true);
+    setTermsDialogOpen(false);
+    window.setTimeout(() => action?.(), 0);
   }
 
   const loadSchedule = useCallback(async () => {
@@ -448,8 +601,8 @@ export default function App() {
             <WestBerkeleyMap selectedBlock={block} onSelect={setBlock} />
           </Suspense>
           <BlockSummary segment={selectedSegment} loadFailed={loadFailed} />
-          <WeeklyCalendar area={selectedSegment} blockSchedule={schedule?.blocks?.[block]} loadFailed={loadFailed} termsAccepted={termsAccepted} />
-          <StreetSweeping area={selectedSegment} termsAccepted={termsAccepted} />
+          <WeeklyCalendar area={selectedSegment} blockSchedule={schedule?.blocks?.[block]} loadFailed={loadFailed} termsAccepted={termsAccepted} requestTerms={requestTerms} />
+          <StreetSweeping area={selectedSegment} termsAccepted={termsAccepted} requestTerms={requestTerms} />
           <div className="schedule-heading">
             <strong>Pickup details</strong>
             <span className="status-key"><i className="signal signal-consensus" />Consensus <i className="signal signal-developing" />Developing</span>
@@ -483,6 +636,8 @@ export default function App() {
           </div>
         </section>
       </main>
+
+      <TermsActionDialog open={termsDialogOpen} onCancel={cancelTermsAction} onAccept={acceptTermsAction} />
 
       <footer>
         <div>

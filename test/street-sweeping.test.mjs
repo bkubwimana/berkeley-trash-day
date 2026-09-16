@@ -5,6 +5,7 @@ import { STREET_SWEEPING_METADATA, streetSweepingOptions } from "../src/street-s
 import {
   buildSweepingCalendar,
   nextMonthlyOccurrence,
+  sweepingCalendarEvent,
   sweepingCalendarFilename
 } from "../src/sweeping-calendar.mjs";
 
@@ -59,4 +60,20 @@ test("exports a finite side-specific reminder with safety context", () => {
   assert.match(calendar, /TRIGGER:-P1D/);
   assert.doesNotMatch(calendar, /DTSTART:\d+T\d{6}/);
   assert.equal(sweepingCalendarFilename("2100", "9th Street", "West side"), "berkeley-street-sweeping-2100-9th-street-west-side.ics");
+});
+
+test("builds a provider event for the next side-specific occurrence", () => {
+  const selectedArea = area("2100", "9th Street");
+  const option = streetSweepingOptions(selectedArea).find(({ side }) => side === "W");
+  const event = sweepingCalendarEvent({
+    area: selectedArea,
+    option,
+    referenceDate: new Date("2026-09-14T18:00:00Z")
+  });
+
+  assert.equal(event.title, "Check/move car — street sweeping (West side)");
+  assert.equal(event.startDate.toISOString(), "2026-10-02T00:00:00.000Z");
+  assert.equal(event.endDate.toISOString(), "2026-10-03T00:00:00.000Z");
+  assert.equal(event.location, "2100 9th Street, Berkeley, CA");
+  assert.match(event.recurrenceLabel, /1st Friday monthly/);
 });

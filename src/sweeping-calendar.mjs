@@ -1,3 +1,5 @@
+import { nextDate } from "./calendar-links.mjs";
+
 const WEEKDAY_CODE = Object.freeze({ Sunday: "SU", Monday: "MO", Tuesday: "TU", Wednesday: "WE", Thursday: "TH", Friday: "FR", Saturday: "SA" });
 const WEEKDAY_INDEX = Object.freeze({ Sunday: 0, Monday: 1, Tuesday: 2, Wednesday: 3, Thursday: 4, Friday: 5, Saturday: 6 });
 
@@ -36,9 +38,9 @@ export function sweepingCalendarFilename(block, streetName, side) {
   return `berkeley-street-sweeping-${block}-${slug(streetName)}-${slug(side)}.ics`;
 }
 
-export function buildSweepingCalendar({ area, option, referenceDate = new Date() }) {
+export function sweepingCalendarEvent({ area, option, referenceDate = new Date() }) {
   if (!area || !option || !WEEKDAY_CODE[option.weekday]) return null;
-  const start = nextMonthlyOccurrence(option.ordinal, option.weekday, referenceDate);
+  const startDate = nextMonthlyOccurrence(option.ordinal, option.weekday, referenceDate);
   const schedule = `${option.ordinalLabel} ${option.weekday} · ${option.period}`;
   const description = [
     `City-published residential schedule: ${schedule}.`,
@@ -46,6 +48,21 @@ export function buildSweepingCalendar({ area, option, referenceDate = new Date()
     "Check and follow posted signs for the exact restriction. Move your car before the posted time to avoid a ticket.",
     "Berkeley does not sweep on City holidays; the next regularly scheduled date applies."
   ].join(" ");
+
+  return {
+    id: option.id,
+    title: `Check/move car — street sweeping (${option.sideLabel})`,
+    startDate,
+    endDate: nextDate(startDate),
+    description,
+    location: `${area.addressRange} ${area.streetName}, Berkeley, CA`,
+    recurrenceLabel: `${option.ordinalLabel} ${option.weekday} monthly for 24 months`
+  };
+}
+
+export function buildSweepingCalendar({ area, option, referenceDate = new Date() }) {
+  const event = sweepingCalendarEvent({ area, option, referenceDate });
+  if (!event) return null;
 
   return [
     "BEGIN:VCALENDAR",
@@ -57,11 +74,12 @@ export function buildSweepingCalendar({ area, option, referenceDate = new Date()
     "BEGIN:VEVENT",
     `UID:${area.id}-${slug(option.side)}-sweeping@berkeleytrashday.org`,
     `DTSTAMP:${formatTimestamp(referenceDate)}`,
-    `DTSTART;VALUE=DATE:${formatCalendarDate(start)}`,
+    `DTSTART;VALUE=DATE:${formatCalendarDate(event.startDate)}`,
     "DURATION:P1D",
     `RRULE:FREQ=MONTHLY;COUNT=24;BYDAY=${WEEKDAY_CODE[option.weekday]};BYSETPOS=${option.ordinal}`,
-    `SUMMARY:${escapeCalendarText(`Check/move car — street sweeping (${option.sideLabel})`)}`,
-    `DESCRIPTION:${escapeCalendarText(description)}`,
+    `SUMMARY:${escapeCalendarText(event.title)}`,
+    `DESCRIPTION:${escapeCalendarText(event.description)}`,
+    `LOCATION:${escapeCalendarText(event.location)}`,
     `URL:${option.sourceUrl}`,
     "BEGIN:VALARM",
     "TRIGGER:-P1D",

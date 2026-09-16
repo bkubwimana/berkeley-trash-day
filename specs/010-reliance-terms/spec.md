@@ -10,8 +10,9 @@ or download a calendar reminder.
 
 - A conspicuous notice appears before the tracker, not only in the footer.
 - The notice names community-data and reminder limitations and links to the Terms of Use.
-- Report submission and both calendar-download paths stay disabled until the visitor accepts
-  the current Terms version.
+- Report submission stays disabled until the visitor accepts the current Terms version.
+- Calendar actions remain discoverable. Selecting one without current acceptance opens a
+  confirmation dialog; accepting continues into the calendar chooser.
 - Basic schedule browsing remains available without acceptance.
 - The current Terms version is remembered in browser local storage for convenience.
 - A submitted report stores the current Terms version and a server-generated acceptance
@@ -25,7 +26,7 @@ or download a calendar reminder.
 
 ## Acceptance examples
 
-- On a fresh page load, report and reminder buttons are disabled.
+- On a fresh page load, report submission is disabled; reminder actions open confirmation.
 - Checking the acknowledgement enables any otherwise-eligible action immediately.
 - Reloading the page restores acceptance only when the stored version is current.
 - The Terms and Privacy pages are reachable from the tracker and sitemap.

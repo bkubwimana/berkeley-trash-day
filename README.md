@@ -34,10 +34,11 @@ The app does not request names, emails, accounts, exact addresses, photos, or lo
 coordinates.
 
 The tracker presents a conspicuous reliance notice before its results. Report submission
-and calendar downloads require an affirmative Terms acknowledgement. The current Terms
-version is remembered in browser local storage. Submitted reports store that version and a
-server-generated acceptance timestamp, but no identity or application-stored IP address.
-Calendar downloads remain local and unlogged. The Terms explain that users must verify
+and calendar actions require an affirmative Terms acknowledgement. The current Terms
+version is remembered in browser local storage. Selecting a calendar action without current
+acceptance opens a confirmation dialog and then continues to the provider chooser. Submitted
+reports store that version and a server-generated acceptance timestamp, but no identity or
+application-stored IP address. Calendar-file downloads remain local and unlogged. The Terms explain that users must verify
 collection days with Berkeley Zero Waste and follow posted parking signs; they also disclose
 the limits of community data and calendar reminders. These safeguards reduce ambiguity but
 are not a guarantee against a claim, and the maintainer should obtain legal review for the
@@ -94,11 +95,11 @@ review. See [`specs/008-security-observability`](specs/008-security-observabilit
 
 The selected range also has a seven-day community calendar. It places collection streams
 only on weekdays supported by recent reports and keeps holiday limitations visible. Once
-a stream reaches community consensus, “Add to calendar” downloads an `.ics` file that
-works with Apple Calendar and Outlook and can be imported into Google Calendar. It creates
-26 weekly all-day reminders, omits developing observations, and does not account for
-holiday changes. The file is generated locally in the browser without calendar permissions
-or personal data.
+a stream reaches community consensus, “Add to calendar” offers Google Calendar, Outlook,
+or a recurring `.ics` file. Direct provider links open the next occurrence for review; the
+file contains 26 weekly all-day reminders, omits developing observations, and does not
+account for holiday changes. The file is generated locally without calendar permissions.
+Choosing Google or Outlook sends the event fields and selected street range to that provider.
 
 Street sweeping is separate from community pickup reports. The app matches the selected
 range against the City of Berkeley's three published residential street-sweeping tables,
@@ -107,9 +108,10 @@ AM/PM window. The current City tables overlap 90 of the registry's 277 West Berk
 ranges. Missing coverage is not interpreted as “no sweeping”; posted signs remain the
 authority.
 
-Each available curb side can be downloaded as a local `.ics` file with 24 monthly
-check/move-car reminders and a one-day alert. The reminder intentionally does not invent
-an exact time, and it notes that City holidays are not swept.
+Each available curb side offers a prefilled next occurrence for Google Calendar or Outlook,
+plus a local `.ics` file with 24 monthly check/move-car reminders and a one-day alert. The
+reminder intentionally does not invent an exact time, and it notes that City holidays are
+not swept.
 
 ## API
 
@@ -123,7 +125,7 @@ an exact time, and it notes that City holidays are not swept.
   "streams": ["trash", "recycling", "compost"],
   "day": "Tuesday",
   "termsAccepted": true,
-  "termsVersion": "2026-09-15"
+  "termsVersion": "2026-09-16"
 }
 ```
 

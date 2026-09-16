@@ -95,7 +95,7 @@ components:
           const: true
         termsVersion:
           type: string
-          const: "2026-09-15"
+          const: "2026-09-16"
         website:
           type: string
           maxLength: 0

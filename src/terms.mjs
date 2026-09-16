@@ -1,4 +1,4 @@
-export const TERMS_VERSION = "2026-09-15";
+export const TERMS_VERSION = "2026-09-16";
 export const TERMS_ACCEPTANCE_STORAGE_KEY = "berkeley-trash-day:accepted-terms-version";
 
 export function readTermsAcceptance(storage) {

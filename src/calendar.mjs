@@ -1,4 +1,5 @@
 import { STREAMS, WEEKDAYS } from "./corridor.mjs";
+import { nextDate } from "./calendar-links.mjs";
 
 const CONSENSUS_STATUS = "Community consensus";
 const WEEKDAY_INDEX = {
@@ -59,6 +60,26 @@ export function pickupCalendarFilename(block, streetName = "9th Street") {
   return `berkeley-trash-day-${block}-${slug(streetName)}.ics`;
 }
 
+export function pickupCalendarEvents({
+  block,
+  streetName = "9th Street",
+  blockSchedule,
+  referenceDate = new Date()
+}) {
+  return consensusCalendarStreams(blockSchedule).map((stream) => {
+    const startDate = nextWeekdayDate(stream.day, referenceDate);
+    return {
+      id: stream.id,
+      title: `${stream.label} pickup - ${block} ${streetName}`,
+      startDate,
+      endDate: nextDate(startDate),
+      description: "Unofficial community reminder. Holiday changes may not appear. Verify changes with Berkeley Zero Waste.",
+      location: `${block} ${streetName}, Berkeley, CA`,
+      recurrenceLabel: "Weekly for 26 weeks"
+    };
+  });
+}
+
 export function buildPickupCalendar({
   block,
   streetName = "9th Street",
@@ -66,8 +87,8 @@ export function buildPickupCalendar({
   blockSchedule,
   referenceDate = new Date()
 }) {
-  const streams = consensusCalendarStreams(blockSchedule);
-  if (!streams.length) return null;
+  const events = pickupCalendarEvents({ block, streetName, blockSchedule, referenceDate });
+  if (!events.length) return null;
 
   const generatedAt = formatTimestamp(referenceDate);
   const lines = [
@@ -79,16 +100,17 @@ export function buildPickupCalendar({
     `X-WR-CALNAME:${escapeCalendarText(`${block} ${streetName} pickup`)}`
   ];
 
-  for (const stream of streams) {
+  for (const event of events) {
     lines.push(
       "BEGIN:VEVENT",
-      `UID:${serviceAreaId}-${stream.id}@berkeleytrashday.netlify.app`,
+      `UID:${serviceAreaId}-${event.id}@berkeleytrashday.org`,
       `DTSTAMP:${generatedAt}`,
-      `DTSTART;VALUE=DATE:${formatCalendarDate(nextWeekdayDate(stream.day, referenceDate))}`,
+      `DTSTART;VALUE=DATE:${formatCalendarDate(event.startDate)}`,
       "DURATION:P1D",
       "RRULE:FREQ=WEEKLY;COUNT=26",
-      `SUMMARY:${escapeCalendarText(`${stream.label} pickup - ${block} ${streetName}`)}`,
-      `DESCRIPTION:${escapeCalendarText("Unofficial community reminder. Holiday changes may not appear. Verify changes with Berkeley Zero Waste.")}`,
+      `SUMMARY:${escapeCalendarText(event.title)}`,
+      `DESCRIPTION:${escapeCalendarText(event.description)}`,
+      `LOCATION:${escapeCalendarText(event.location)}`,
       "URL:https://berkeleytrashday.org/",
       "END:VEVENT"
     );
