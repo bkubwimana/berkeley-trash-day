@@ -183,7 +183,7 @@ test("search discovery metadata and useful guides are published", async () => {
   assert.match(index, /application\/ld\+json/);
   assert.match(index, /"@type": "WebApplication"/);
   assert.match(index, /community-reported trash, recycling, and compost/i);
-  assert.match(app, /Trash day/);
+  assert.match(app, /Find your block/);
   assert.match(app, /pickup-guide\.html/);
   assert.match(app, /street-sweeping-guide\.html/);
   assert.match(pickup, /Trash, recycling and compost pickup days/);

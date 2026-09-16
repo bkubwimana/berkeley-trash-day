@@ -573,7 +573,7 @@ export default function App() {
               <span className="pill">Community beta</span>
               <span className="pill pill-muted">Unofficial</span>
             </div>
-            <h1 id="page-title">Trash day.<br />Street sweeping.</h1>
+            <h1 id="page-title">Find your block.<br />Know your day.</h1>
             <p className="lede">A neighbor-powered guide to trash, recycling, and compost pickup days across West Berkeley.</p>
           </div>
           <aside className="official-note">
