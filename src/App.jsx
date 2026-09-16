@@ -20,6 +20,11 @@ import {
   buildSweepingCalendar,
   sweepingCalendarFilename
 } from "./sweeping-calendar.mjs";
+import {
+  TERMS_VERSION,
+  readTermsAcceptance,
+  writeTermsAcceptance
+} from "./terms.mjs";
 const WestBerkeleyMap = lazy(() => import("./WestBerkeleyMap.jsx").then((module) => ({ default: module.WestBerkeleyMap })));
 function LocationPinIcon({ className = "" }) {
   return (
@@ -276,7 +281,9 @@ function ReportForm({ block, onBlockChange, onRecorded, termsAccepted }) {
       block: formData.get("block"),
       streams: formData.getAll("streams"),
       day: formData.get("day"),
-      website: formData.get("website")
+      website: formData.get("website"),
+      termsAccepted,
+      termsVersion: TERMS_VERSION
     });
 
     if (payload.streams.length === 0) {
@@ -362,7 +369,12 @@ export default function App() {
   const [schedule, setSchedule] = useState(null);
   const [loadFailed, setLoadFailed] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(() => readTermsAcceptance());
+
+  function updateTermsAcceptance(accepted) {
+    setTermsAccepted(accepted);
+    writeTermsAcceptance(accepted);
+  }
 
   const loadSchedule = useCallback(async () => {
     setLoading(true);
@@ -421,7 +433,7 @@ export default function App() {
           </aside>
         </section>
 
-        <RelianceNotice accepted={termsAccepted} onChange={setTermsAccepted} />
+        <RelianceNotice accepted={termsAccepted} onChange={updateTermsAcceptance} />
 
         <section className="tracker" aria-labelledby="tracker-title">
           <div className="section-heading">

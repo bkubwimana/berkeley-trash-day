@@ -7,6 +7,7 @@ import {
   formatSummary,
   makeReportPayload
 } from "../src/corridor.mjs";
+import { TERMS_VERSION } from "../src/terms.mjs";
 
 test("view model uses the complete West Berkeley service-area registry", () => {
   assert.ok(CORRIDOR.length > 200);
@@ -89,13 +90,17 @@ test("builds only the constrained report payload", () => {
     streams: ["trash", "compost"],
     day: "Thursday",
     website: "",
+    termsAccepted: true,
+    termsVersion: TERMS_VERSION,
     exactAddress: "must not pass through"
   });
   assert.deepEqual(payload, {
     block: "2200",
     streams: ["trash", "compost"],
     day: "Thursday",
-    website: ""
+    website: "",
+    termsAccepted: true,
+    termsVersion: TERMS_VERSION
   });
 });
 

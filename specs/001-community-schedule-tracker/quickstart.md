@@ -26,32 +26,33 @@ static site, functions, and development report storage.
 Expected: every group says "No reports yet." No weekday, fabricated report, or confidence
 percentage appears.
 
-## Scenario 2: Developing result
+## Scenario 2: First-report consensus
 
 1. Select the 2100 block.
 2. Submit a Tuesday trash observation once.
 3. Return to the selected block result.
 
-Expected: Trash shows Tuesday, "1 of 1 recent reports agree," and "Developing." The page
-still identifies the result as community-reported and unofficial.
+Expected: Trash shows Tuesday, "1 of 1 recent reports agree," and "Community consensus."
+The page still identifies the result as community-reported and unofficial.
 
-## Scenario 3: Consensus threshold
+## Scenario 3: Conflicting reports
 
-1. Submit two additional Tuesday trash observations for the 2100 block in a local test
+1. Submit two additional Wednesday trash observations for the 2100 block in a local test
    environment. If the local frequency limit intervenes, use the automated aggregation
    test instead of weakening the production limit.
-2. Inspect the result after three agreeing recent observations.
+2. Inspect the result after all three recent observations are recorded.
 
-Expected: Trash shows Tuesday, "3 of 3 recent reports agree," and "Community consensus."
+Expected: Trash shows Wednesday, "2 of 3 recent reports agree," and "Community consensus."
 
-The automated suite also proves the 2-of-3 boundary, disagreement, ties, and 180-day aging
-without manufacturing production data.
+The automated suite also proves first-report consensus, disagreement, ties, and 180-day
+aging without manufacturing production data.
 
 ## Scenario 4: Input constraints
 
 Submit malformed JSON, an unsupported block, an unsupported collection stream, an invalid
-weekday, a nonempty hidden `website` value, and a body larger than 2,000 bytes to the report
-endpoint described in [`contracts/openapi.yaml`](contracts/openapi.yaml).
+weekday, missing or stale Terms acceptance, a nonempty hidden `website` value, and a body
+larger than 2,000 bytes to the report endpoint described in
+[`contracts/openapi.yaml`](contracts/openapi.yaml).
 
 Expected: each request fails without storing a report or echoing unsafe input.
 
@@ -72,9 +73,12 @@ and no meaning depends on color or motion alone.
    privacy page from the tracker.
 2. Confirm the report form has no name, account, contact, address, comment, photo, or
    location field.
+3. Accept the current Terms, reload the page, and confirm the acknowledgement remains
+   selected. Then submit a local report and verify its record has the current Terms version
+   and a server-assigned acceptance time.
 
 Expected: a first-time visitor can distinguish community data from City information and
-understand exactly what a report stores.
+understand exactly what a report stores. Calendar downloads remain local and unlogged.
 
 ## Release gate
 

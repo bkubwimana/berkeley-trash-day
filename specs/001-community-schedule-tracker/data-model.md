@@ -30,6 +30,8 @@ One immutable community observation.
 | `stream` | CollectionStream | yes | Exact enumeration | Grouping and display |
 | `day` | Weekday | yes | Exact enumeration | Aggregation and display |
 | `reportedAt` | UTC timestamp | yes | Assigned by service | 180-day eligibility |
+| `termsVersion` | string | yes | Must equal current version | Acceptance policy |
+| `termsAcceptedAt` | UTC timestamp | yes | Assigned by service | Acceptance record |
 | `street` | string | yes | Fixed as `9th Street` | Location label |
 | `city` | string | yes | Fixed as `Berkeley, CA` | Location label |
 | `source` | string | yes | Fixed as `community` | Provenance label |
@@ -41,8 +43,8 @@ address.
 ### Lifecycle
 
 1. **Received**: values and request size are validated.
-2. **Stored**: the service adds fixed labels and server receipt time, then creates one
-   immutable record.
+2. **Stored**: the service adds fixed labels, server receipt time, accepted Terms version,
+   and server acceptance time, then creates one immutable record.
 3. **Recent**: the record is at most 180 days old and participates in aggregation.
 4. **Expired from results**: the record is older than 180 days and does not participate in
    any public total, leader, percentage, or status. Physical deletion can be added later but

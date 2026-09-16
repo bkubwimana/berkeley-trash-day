@@ -11,7 +11,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "node --test",
-    "check": "vite build && node --check scripts/generate-service-areas.mjs && node --check scripts/generate-street-sweeping.mjs && node --check src/service-areas.generated.mjs && node --check src/service-area-geometries.generated.mjs && node --check src/street-sweeping.generated.mjs && node --check src/street-sweeping.mjs && node --check src/sweeping-calendar.mjs && node --check src/calendar.mjs && node --check src/corridor.mjs && node --check src/map-data.mjs && node --check src/reporting.mjs && node --check vite.config.js && node --check netlify/functions/_shared/http-security.mjs && node --check netlify/functions/schedule.mjs && node --check netlify/functions/submit-report.mjs"
+    "check": "vite build && node --check scripts/generate-service-areas.mjs && node --check scripts/generate-street-sweeping.mjs && node --check src/service-areas.generated.mjs && node --check src/service-area-geometries.generated.mjs && node --check src/street-sweeping.generated.mjs && node --check src/street-sweeping.mjs && node --check src/sweeping-calendar.mjs && node --check src/terms.mjs && node --check src/calendar.mjs && node --check src/corridor.mjs && node --check src/map-data.mjs && node --check src/reporting.mjs && node --check vite.config.js && node --check netlify/functions/_shared/http-security.mjs && node --check netlify/functions/schedule.mjs && node --check netlify/functions/submit-report.mjs"
   },
   "dependencies": {
     "@netlify/blobs": "^10.0.0",

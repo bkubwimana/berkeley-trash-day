@@ -5,7 +5,7 @@ info:
   description: >-
     Unofficial, community-reported collection-day data for the initial 9th Street beta.
 servers:
-  - url: https://berkeleytrashday.netlify.app
+  - url: https://berkeleytrashday.org
 paths:
   /api/schedule:
     get:
@@ -77,7 +77,7 @@ components:
     ReportInput:
       type: object
       additionalProperties: false
-      required: [block, streams, day]
+      required: [block, streams, day, termsAccepted, termsVersion]
       properties:
         block:
           $ref: "#/components/schemas/Block"
@@ -90,6 +90,12 @@ components:
             $ref: "#/components/schemas/Stream"
         day:
           $ref: "#/components/schemas/Weekday"
+        termsAccepted:
+          type: boolean
+          const: true
+        termsVersion:
+          type: string
+          const: "2026-09-15"
         website:
           type: string
           maxLength: 0

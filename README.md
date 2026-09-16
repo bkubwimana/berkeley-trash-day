@@ -34,12 +34,14 @@ The app does not request names, emails, accounts, exact addresses, photos, or lo
 coordinates.
 
 The tracker presents a conspicuous reliance notice before its results. Report submission
-and calendar downloads require an affirmative Terms acknowledgement. That checkbox exists
-only in current page memory and is not stored or joined to a report. The Terms explain that
-users must verify collection days with Berkeley Zero Waste and follow posted parking signs;
-they also disclose the limits of community data and calendar reminders. These safeguards
-reduce ambiguity but are not a guarantee against a claim, and the maintainer should obtain
-legal review for the final wording.
+and calendar downloads require an affirmative Terms acknowledgement. The current Terms
+version is remembered in browser local storage. Submitted reports store that version and a
+server-generated acceptance timestamp, but no identity or application-stored IP address.
+Calendar downloads remain local and unlogged. The Terms explain that users must verify
+collection days with Berkeley Zero Waste and follow posted parking signs; they also disclose
+the limits of community data and calendar reminders. These safeguards reduce ambiguity but
+are not a guarantee against a claim, and the maintainer should obtain legal review for the
+final wording.
 
 ## Local development
 
@@ -119,7 +121,9 @@ an exact time, and it notes that City holidays are not swept.
 {
   "block": "2100",
   "streams": ["trash", "recycling", "compost"],
-  "day": "Tuesday"
+  "day": "Tuesday",
+  "termsAccepted": true,
+  "termsVersion": "2026-09-15"
 }
 ```
 

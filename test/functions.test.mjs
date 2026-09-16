@@ -6,6 +6,13 @@ import {
   config as submitConfig
 } from "../netlify/functions/submit-report.mjs";
 import { SERVICE_AREAS } from "../src/map-data.mjs";
+import { TERMS_VERSION } from "../src/terms.mjs";
+
+const acceptedTerms = { termsAccepted: true, termsVersion: TERMS_VERSION };
+
+function acceptedReport(body) {
+  return { ...acceptedTerms, ...body };
+}
 
 function createMemoryStore(initial = {}) {
   const records = new Map(Object.entries(initial));
@@ -106,7 +113,7 @@ test("POST report stores only the constrained application record", async () => {
   });
   const response = await handler(jsonRequest(
     "https://example.test/api/reports",
-    { block: "2100", streams: ["trash", "recycling"], day: "Tuesday", website: "" }
+    acceptedReport({ block: "2100", streams: ["trash", "recycling"], day: "Tuesday", website: "" })
   ));
 
   assert.equal(response.status, 201);
@@ -117,7 +124,9 @@ test("POST report stores only the constrained application record", async () => {
     block: "2100",
     streams: ["trash", "recycling"],
     day: "Tuesday",
+    termsVersion: TERMS_VERSION,
     reportedAt: "2026-09-07T12:00:00.000Z",
+    termsAcceptedAt: "2026-09-07T12:00:00.000Z",
     street: "9th Street",
     addressRange: "2100",
     city: "Berkeley, CA",
@@ -135,7 +144,7 @@ test("POST report stores the public label for a non-Ninth Street range", async (
   });
   const response = await handler(jsonRequest(
     "https://example.test/api/reports",
-    { block: area.id, streams: ["compost"], day: "Thursday" }
+    acceptedReport({ block: area.id, streams: ["compost"], day: "Thursday" })
   ));
   assert.equal(response.status, 201);
   const stored = JSON.parse(memory.records.get(`reports/${area.id}/cedar-report`));
@@ -152,15 +161,15 @@ test("report endpoint rejects malformed, unsupported, honeypot, and oversized in
       headers: { "content-type": "application/json" },
       body: "{"
     }),
-    jsonRequest("https://example.test/api/reports", {
+    jsonRequest("https://example.test/api/reports", acceptedReport({
       block: "9999", streams: ["trash"], day: "Tuesday"
-    }),
-    jsonRequest("https://example.test/api/reports", {
+    })),
+    jsonRequest("https://example.test/api/reports", acceptedReport({
       block: "2100", streams: ["trash"], day: "Tuesday", website: "bot"
-    }),
-    jsonRequest("https://example.test/api/reports", {
+    })),
+    jsonRequest("https://example.test/api/reports", acceptedReport({
       block: "2100", streams: ["trash"], day: "Tuesday", comment: "x".repeat(2100)
-    })
+    }))
   ];
 
   const responses = await Promise.all(requests.map((request) => handler(request)));
@@ -168,10 +177,24 @@ test("report endpoint rejects malformed, unsupported, honeypot, and oversized in
   assert.equal(memory.records.size, 0);
 });
 
+test("report endpoint rejects missing or stale Terms acceptance", async () => {
+  const memory = createMemoryStore();
+  const handler = createSubmitReportHandler({ getStoreImpl: memory.getStoreImpl });
+  const base = { block: "2100", streams: ["trash"], day: "Tuesday" };
+  const responses = await Promise.all([
+    handler(jsonRequest("https://example.test/api/reports", base)),
+    handler(jsonRequest("https://example.test/api/reports", { ...base, termsAccepted: true, termsVersion: "outdated" })),
+    handler(jsonRequest("https://example.test/api/reports", { ...base, termsAccepted: false, termsVersion: TERMS_VERSION }))
+  ]);
+
+  assert.deepEqual(responses.map((response) => response.status), [400, 400, 400]);
+  assert.equal(memory.records.size, 0);
+});
+
 test("report endpoint rejects wrong media types and cross-site browser submissions", async () => {
   const memory = createMemoryStore();
   const handler = createSubmitReportHandler({ getStoreImpl: memory.getStoreImpl });
-  const body = { block: "2100", streams: ["trash"], day: "Tuesday" };
+  const body = acceptedReport({ block: "2100", streams: ["trash"], day: "Tuesday" });
   const requests = [
     new Request("https://example.test/api/reports", {
       method: "POST",
@@ -200,7 +223,7 @@ test("report endpoint accepts an explicit same-origin browser submission", async
   const handler = createSubmitReportHandler({ getStoreImpl: memory.getStoreImpl });
   const response = await handler(jsonRequest(
     "https://berkeleytrashday.org/api/reports",
-    { block: "2100", streams: ["trash"], day: "Tuesday" },
+    acceptedReport({ block: "2100", streams: ["trash"], day: "Tuesday" }),
     { origin: "https://berkeleytrashday.org", "sec-fetch-site": "same-origin" }
   ));
 
@@ -213,7 +236,7 @@ test("report endpoint rejects an oversized declared body before reading it", asy
   const handler = createSubmitReportHandler({ getStoreImpl: memory.getStoreImpl });
   const response = await handler(jsonRequest(
     "https://example.test/api/reports",
-    { block: "2100", streams: ["trash"], day: "Tuesday" },
+    acceptedReport({ block: "2100", streams: ["trash"], day: "Tuesday" }),
     { "content-length": "2001" }
   ));
 

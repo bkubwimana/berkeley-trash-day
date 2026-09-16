@@ -1,4 +1,5 @@
 import { SERVICE_AREAS } from "./service-areas.generated.mjs";
+import { TERMS_VERSION } from "./terms.mjs";
 
 export const BLOCKS = SERVICE_AREAS.map(({ id }) => id);
 export const STREAMS = ["trash", "recycling", "compost"];
@@ -8,7 +9,7 @@ export const REPORT_WINDOW_DAYS = 180;
 export const MINIMUM_REPORTS = 1;
 export const AGREEMENT_THRESHOLD = 2 / 3;
 
-const INPUT_FIELDS = new Set(["block", "stream", "streams", "day", "website"]);
+const INPUT_FIELDS = new Set(["block", "stream", "streams", "day", "website", "termsAccepted", "termsVersion"]);
 
 function normalizeInputStreams(input) {
   const hasLegacyStream = Object.hasOwn(input, "stream");
@@ -51,17 +52,20 @@ export function validateReport(input) {
   const block = typeof input?.block === "string" ? input.block.trim() : "";
   const streamSelection = normalizeInputStreams(input);
   const day = typeof input?.day === "string" ? input.day.trim() : "";
+  const termsAccepted = input?.termsAccepted === true;
+  const termsVersion = typeof input?.termsVersion === "string" ? input.termsVersion : "";
 
   if (unsupportedFields.length > 0) errors.push("Submission contains unsupported fields.");
   if (!BLOCKS.includes(block)) errors.push("Choose a supported West Berkeley street range.");
   if (!streamSelection.valid) errors.push("Choose one or more collection types.");
   if (!DAYS.includes(day)) errors.push("Choose a valid collection day.");
   if (input?.website) errors.push("Submission rejected.");
+  if (!termsAccepted || termsVersion !== TERMS_VERSION) errors.push("Accept the current Terms of Use.");
 
   return {
     ok: errors.length === 0,
     errors,
-    value: errors.length === 0 ? { block, streams: streamSelection.streams, day } : null
+    value: errors.length === 0 ? { block, streams: streamSelection.streams, day, termsVersion } : null
   };
 }
 

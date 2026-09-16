@@ -146,7 +146,8 @@ license, specification, privacy rules, local setup steps, tests, and contributio
 - **FR-007**: The service MUST reject unsupported enumerated values, arbitrary resident
   text, malformed submissions, and submissions exceeding the documented size limit.
 - **FR-008**: The application record for a report MUST contain only block, selected
-  collection types, weekday, receipt time, fixed location label, and community provenance.
+  collection types, weekday, receipt time, accepted Terms version and time, fixed location
+  label, and community provenance.
 - **FR-009**: The report experience MUST NOT request a name, account, email, telephone
   number, exact address, photograph, free-form comment, or precise coordinates.
 - **FR-010**: Reports older than 180 days MUST NOT influence displayed results.
@@ -170,8 +171,8 @@ license, specification, privacy rules, local setup steps, tests, and contributio
 ### Key Entities
 
 - **Community Report**: One recent observation for a supported block and one or more
-  collection types; contains a weekday, receipt time, fixed Berkeley location label, and
-  community provenance.
+  collection types; contains a weekday, receipt time, accepted Terms version and time,
+  fixed Berkeley location label, and community provenance.
 - **Block Schedule**: The three current collection-type summaries for one supported block.
 - **Collection Summary**: A leading weekday, supporting count, total recent count, agreement
   percentage, and status calculated from Community Reports.

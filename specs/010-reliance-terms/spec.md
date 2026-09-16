@@ -10,10 +10,13 @@ or download a calendar reminder.
 
 - A conspicuous notice appears before the tracker, not only in the footer.
 - The notice names community-data and reminder limitations and links to the Terms of Use.
-- Report submission and both calendar-download paths stay disabled until the visitor checks
-  the acknowledgement in the current page session.
+- Report submission and both calendar-download paths stay disabled until the visitor accepts
+  the current Terms version.
 - Basic schedule browsing remains available without acceptance.
-- The acknowledgement is not persisted, transmitted, or joined to a report.
+- The current Terms version is remembered in browser local storage for convenience.
+- A submitted report stores the current Terms version and a server-generated acceptance
+  timestamp, without an account, exact address, application-stored IP, or fingerprint.
+- Calendar downloads remain local and do not create server acceptance records.
 - The Terms identify the project as independent and unofficial, require independent
   verification, disclaim warranties, and address tickets, towing, missed collections,
   penalties, property loss, and related reliance damages to the extent permitted by law.
@@ -24,6 +27,5 @@ or download a calendar reminder.
 
 - On a fresh page load, report and reminder buttons are disabled.
 - Checking the acknowledgement enables any otherwise-eligible action immediately.
-- Reloading the page clears the acknowledgement.
+- Reloading the page restores acceptance only when the stored version is current.
 - The Terms and Privacy pages are reachable from the tracker and sitemap.
-

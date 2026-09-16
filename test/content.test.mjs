@@ -33,7 +33,8 @@ test("privacy page states collected and excluded data", async () => {
   assert.match(html, /hosting provider may temporarily process standard connection data/i);
   assert.match(html, /Reports contribute to the schedule for 180 days/i);
   assert.match(html, /does not\s+sell community-report data/i);
-  assert.match(html, /Terms acknowledgement is held only in the current page's memory/i);
+  assert.match(html, /remembers the currently accepted Terms version in your browser's local/i);
+  assert.match(html, /server-generated acceptance time/i);
 });
 
 test("map uses real cross streets in order with complete data attribution", async () => {

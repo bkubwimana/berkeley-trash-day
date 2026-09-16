@@ -7,9 +7,11 @@ import {
   aggregateReports,
   validateReport
 } from "../src/reporting.mjs";
+import { TERMS_VERSION } from "../src/terms.mjs";
 
 const now = new Date("2026-09-07T12:00:00.000Z");
 const reportedAt = "2026-09-01T12:00:00.000Z";
+const acceptedTerms = { termsAccepted: true, termsVersion: TERMS_VERSION };
 
 test("exposes the West Berkeley registry and fixed civic enumerations", () => {
   assert.ok(BLOCKS.length > 200);
@@ -22,6 +24,7 @@ test("exposes the West Berkeley registry and fixed civic enumerations", () => {
 
 test("accepts a supported anonymous multi-stream report", () => {
   const result = validateReport({
+    ...acceptedTerms,
     block: "2100",
     streams: ["trash", "recycling", "compost"],
     day: "Tuesday",
@@ -31,32 +34,41 @@ test("accepts a supported anonymous multi-stream report", () => {
   assert.deepEqual(result.value, {
     block: "2100",
     streams: ["trash", "recycling", "compost"],
-    day: "Tuesday"
+    day: "Tuesday",
+    termsVersion: TERMS_VERSION
   });
 });
 
 test("rejects unsupported values and honeypot submissions", () => {
-  const result = validateReport({ block: "9999", streams: ["glass"], day: "Tomorrow", website: "spam" });
+  const result = validateReport({ ...acceptedTerms, block: "9999", streams: ["glass"], day: "Tomorrow", website: "spam" });
   assert.equal(result.ok, false);
   assert.equal(result.errors.length, 4);
   assert.equal(result.value, null);
 });
 
 test("rejects empty, duplicate, and mixed stream selections", () => {
-  assert.equal(validateReport({ block: "2100", streams: [], day: "Tuesday" }).ok, false);
-  assert.equal(validateReport({ block: "2100", streams: ["trash", "trash"], day: "Tuesday" }).ok, false);
-  assert.equal(validateReport({ block: "2100", stream: "trash", streams: ["trash"], day: "Tuesday" }).ok, false);
+  assert.equal(validateReport({ ...acceptedTerms, block: "2100", streams: [], day: "Tuesday" }).ok, false);
+  assert.equal(validateReport({ ...acceptedTerms, block: "2100", streams: ["trash", "trash"], day: "Tuesday" }).ok, false);
+  assert.equal(validateReport({ ...acceptedTerms, block: "2100", stream: "trash", streams: ["trash"], day: "Tuesday" }).ok, false);
 });
 
 test("rejects arrays, missing values, and extra fields", () => {
   assert.equal(validateReport([]).ok, false);
   assert.equal(validateReport(null).ok, false);
   assert.equal(validateReport({
+    ...acceptedTerms,
     block: "2100",
     stream: "trash",
     day: "Tuesday",
     exactAddress: "not allowed"
   }).ok, false);
+});
+
+test("requires affirmative acceptance of the current Terms version", () => {
+  const base = { block: "2100", streams: ["trash"], day: "Tuesday" };
+  assert.equal(validateReport(base).ok, false);
+  assert.equal(validateReport({ ...base, termsAccepted: true, termsVersion: "outdated" }).ok, false);
+  assert.equal(validateReport({ ...base, termsAccepted: false, termsVersion: TERMS_VERSION }).ok, false);
 });
 
 test("returns a complete empty schedule without suggesting a weekday", () => {
@@ -88,7 +100,7 @@ test("accepts and aggregates a generated non-Ninth Street range", async () => {
   const { SERVICE_AREAS } = await import("../src/map-data.mjs");
   const area = SERVICE_AREAS.find(({ streetName }) => streetName === "Cedar Street");
   assert.ok(area);
-  const validation = validateReport({ block: area.id, streams: ["compost"], day: "Thursday" });
+  const validation = validateReport({ ...acceptedTerms, block: area.id, streams: ["compost"], day: "Thursday" });
   assert.equal(validation.ok, true);
   const blocks = aggregateReports([{ ...validation.value, reportedAt }], now);
   assert.equal(blocks[area.id].compost.day, "Thursday");

@@ -8,7 +8,7 @@ Include the affected URL or commit, impact, minimal reproduction, and any sugges
 
 ## Security boundaries
 
-This is an anonymous community schedule, not an identity, emergency, payment, or authoritative City system. It stores only a fixed street-range ID, one or more enumerated collection streams, an enumerated weekday, server receipt time, and public range labels. It does not request accounts, names, contact details, exact addresses, photos, coordinates, or free-form content.
+This is an anonymous community schedule, not an identity, emergency, payment, or authoritative City system. It stores only a fixed street-range ID, one or more enumerated collection streams, an enumerated weekday, server receipt time, accepted Terms version and server acceptance time, and public range labels. It does not request accounts, names, contact details, exact addresses, photos, coordinates, or free-form content.
 
 Netlify terminates TLS, serves static files, runs the two public Functions, applies platform rate limits, and stores report blobs. OpenFreeMap serves optional map resources. GitHub stores the public source. These provider boundaries are not application authentication.
 

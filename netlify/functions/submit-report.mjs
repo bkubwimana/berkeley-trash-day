@@ -47,9 +47,11 @@ export function createSubmitReportHandler({
     }
 
     const area = getServiceArea(validation.value.block);
+    const acceptedAt = now().toISOString();
     const report = {
       ...validation.value,
-      reportedAt: now().toISOString(),
+      reportedAt: acceptedAt,
+      termsAcceptedAt: acceptedAt,
       street: area.streetName,
       addressRange: area.addressRange,
       city: "Berkeley, CA",

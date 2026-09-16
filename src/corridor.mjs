@@ -100,6 +100,8 @@ export function makeReportPayload(values) {
     block: values.block,
     streams: Array.isArray(values.streams) ? [...values.streams] : [],
     day: values.day,
-    website: values.website || ""
+    website: values.website || "",
+    termsAccepted: values.termsAccepted === true,
+    termsVersion: values.termsVersion
   };
 }
