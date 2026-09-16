@@ -406,6 +406,7 @@ export default function App() {
         <nav aria-label="Main navigation">
           <a href="#sweeping">Street sweeping</a>
           <a href="#report">Report a day</a>
+          <a href="/pickup-guide.html">Pickup guide</a>
           <a href="/privacy.html">Privacy</a>
           <a href="https://github.com/bkubwimana/berkeley-trash-day">GitHub</a>
           <a href="/terms.html">Terms</a>
@@ -419,7 +420,7 @@ export default function App() {
               <span className="pill">Community beta</span>
               <span className="pill pill-muted">Unofficial</span>
             </div>
-            <h1 id="page-title">Find your block.<br />Know your day.</h1>
+            <h1 id="page-title">Trash day.<br />Street sweeping.</h1>
             <p className="lede">A neighbor-powered guide to trash, recycling, and compost pickup days across West Berkeley.</p>
           </div>
           <aside className="official-note">
@@ -496,6 +497,8 @@ export default function App() {
         <div className="footer-links">
           <a href="/privacy.html">Privacy</a>
           <a href="/terms.html">Terms of Use</a>
+          <a href="/pickup-guide.html">Trash, recycling &amp; compost guide</a>
+          <a href="/street-sweeping-guide.html">Street sweeping guide</a>
           <a href="https://github.com/bkubwimana/berkeley-trash-day">Source code</a>
           <a href="https://berkeleyca.gov/city-services/trash-recycling/residential-waste-services">Official service information</a>
         </div>

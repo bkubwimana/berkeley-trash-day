@@ -1615,6 +1615,43 @@ footer p {
   font-size: 1.05rem;
 }
 
+.guide-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 30px 0 38px;
+}
+
+.guide-action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--green);
+  color: white;
+  font-weight: 760;
+  text-decoration: none;
+}
+
+.guide-action-secondary {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+}
+
+.guide-note {
+  margin: 32px 0;
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: var(--panel-2);
+}
+
+.guide-note p:last-child {
+  margin-bottom: 0;
+}
+
 @media (max-width: 760px) {
   .site-header {
     min-height: 72px;

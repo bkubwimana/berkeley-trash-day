@@ -155,3 +155,25 @@ test("reliance actions require a conspicuous Terms acknowledgement", async () =>
   assert.match(terms, /fullest extent\s+permitted by law/i);
   assert.match(terms, /do not exclude liability or waive a right that cannot lawfully be\s+excluded/i);
 });
+
+test("search discovery metadata and useful guides are published", async () => {
+  const index = await readFile(new URL("index.html", root), "utf8");
+  const pickup = await readFile(new URL("pickup-guide.html", root), "utf8");
+  const sweeping = await readFile(new URL("street-sweeping-guide.html", root), "utf8");
+  const sitemap = await readFile(new URL("public/sitemap.xml", root), "utf8");
+  const app = await readFile(new URL("src/App.jsx", root), "utf8");
+
+  assert.match(index, /Berkeley Trash Day, Recycling &amp; Street Sweeping/);
+  assert.match(index, /application\/ld\+json/);
+  assert.match(index, /"@type": "WebApplication"/);
+  assert.match(index, /community-reported trash, recycling, and compost/i);
+  assert.match(app, /Trash day/);
+  assert.match(app, /pickup-guide\.html/);
+  assert.match(app, /street-sweeping-guide\.html/);
+  assert.match(pickup, /Trash, recycling and compost pickup days/);
+  assert.match(pickup, /Community information, not an official schedule/);
+  assert.match(sweeping, /Berkeley street sweeping schedules/);
+  assert.match(sweeping, /Posted signs always control/);
+  assert.match(sitemap, /pickup-guide\.html/);
+  assert.match(sitemap, /street-sweeping-guide\.html/);
+});

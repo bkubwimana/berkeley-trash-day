@@ -37,7 +37,9 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: fileURLToPath(new URL("./index.html", import.meta.url)),
+        pickupGuide: fileURLToPath(new URL("./pickup-guide.html", import.meta.url)),
         privacy: fileURLToPath(new URL("./privacy.html", import.meta.url)),
+        streetSweepingGuide: fileURLToPath(new URL("./street-sweeping-guide.html", import.meta.url)),
         terms: fileURLToPath(new URL("./terms.html", import.meta.url)),
         notFound: fileURLToPath(new URL("./404.html", import.meta.url))
       }
